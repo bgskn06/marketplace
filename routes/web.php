@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,11 +26,14 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', fn () => view('admin.dashboard'))
             ->name('dashboard');
 
-        // Route::get('/users', [UserManagementController::class, 'index'])
-        //     ->name('users.index');
+        Route::get('/users', [UserManagementController::class, 'index'])
+            ->name('users.index');
 
-        // Route::post('/users/{user}/promote', [UserManagementController::class, 'promote'])
-        //     ->name('users.promote');
+        Route::post('/users/{user}/promote', [UserManagementController::class, 'promote'])
+            ->name('users.promote');
+
+        Route::post('/users/{user}/demote', [UserManagementController::class, 'demote'])
+            ->name('users.demote');
 });
 
 
@@ -38,6 +42,8 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
         return view('seller.dashboard');
     });
 });
+
+
 
 
 require __DIR__.'/auth.php';
