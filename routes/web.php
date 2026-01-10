@@ -2,15 +2,22 @@
 
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Seller\ShopController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return match (Auth::user()->role) {
+        'admin'  => redirect()->route('admin.dashboard.index'),
+        'seller' => redirect()->route('seller.dashboard.index'),
+        default  => redirect()->route('dashboard'),
+    };
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -23,8 +30,8 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', fn () => view('admin.dashboard'))
-            ->name('dashboard');
+        Route::get('/dashboard', fn() => view('admin.dashboard.index'))
+            ->name('dashboard.index');
 
         Route::get('/users', [UserManagementController::class, 'index'])
             ->name('users.index');
@@ -34,16 +41,33 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::post('/users/{user}/demote', [UserManagementController::class, 'demote'])
             ->name('users.demote');
-});
-
-
-Route::middleware(['auth', 'role:seller'])->group(function () {
-    Route::get('/seller/dashboard', function () {
-        return view('seller.dashboard');
     });
-});
+
+Route::middleware(['auth', 'role:seller'])
+    ->prefix('seller')
+    ->name('seller.')
+    ->group(function () {
+
+        Route::get('/dashboard', function () {
+            if (!Auth::user()->shop) {
+                return redirect()->route('seller.shop.create');
+            }
+
+            return view('seller.dashboard.index');
+        })->name('dashboard.index');
+
+        Route::get('/shop/create', [ShopController::class, 'create'])
+            ->name('shop.create');
+
+        Route::post('/shop', [ShopController::class, 'store'])
+            ->name('shop.store');
+
+        Route::middleware('seller.shop')->group(function () {
+            Route::resource('products', ProductController::class);
+        });
+    });
 
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
