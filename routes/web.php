@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\ShopController;
+use App\Http\Controllers\Buyer\DashboardController;
+use App\Http\Controllers\Buyer\CartController;
+use App\Http\Controllers\Buyer\PagesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +21,9 @@ Route::get('/', function () {
         default  => redirect()->route('dashboard'),
     };
 });
+
+// Public product detail page for buyers
+Route::get('/products/{product}', [App\Http\Controllers\Buyer\ProductController::class, 'show'])->name('products.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -67,7 +73,26 @@ Route::middleware(['auth', 'role:seller'])
         });
     });
 
+Route::middleware(['auth', 'role:buyer'])->group(function () {
+    Route::get('/buyer/dashboard', [App\Http\Controllers\Buyer\DashboardController::class, 'index'])->name('buyer.dashboard');
 
+    Route::get('/buyer/orders', [App\Http\Controllers\Buyer\PagesController::class, 'orders'])->name('buyer.orders');
+    Route::get('/buyer/messages', [App\Http\Controllers\Buyer\PagesController::class, 'messages'])->name('buyer.messages');
+    Route::get('/buyer/cart', [App\Http\Controllers\Buyer\PagesController::class, 'cart'])->name('buyer.cart');
+    Route::get('/buyer/profile', [App\Http\Controllers\Buyer\PagesController::class, 'profile'])->name('buyer.profile');
 
+    Route::get('/api/products', [App\Http\Controllers\Api\ProductController::class, 'index'])->name('api.products');
+
+    Route::post('/buyer/cart/add', [App\Http\Controllers\Buyer\CartController::class, 'add'])->name('buyer.cart.add');
+    Route::delete('/buyer/cart/{item}', [App\Http\Controllers\Buyer\CartController::class, 'remove'])->name('buyer.cart.remove');
+});
+
+Route::middleware('auth')->get('/dashboard', function () {
+    return match (Auth::user()->role) {
+        'admin'  => redirect()->route('admin.dashboard.index'),
+        'seller' => redirect()->route('seller.dashboard.index'),
+        default  => redirect()->route('buyer.dashboard'),
+    };
+})->name('dashboard');
 
 require __DIR__ . '/auth.php';

@@ -13,6 +13,11 @@ class Product extends Model
         'price',
         'stock',
         'is_active',
+        'title',
+        'sku',
+        'category',
+        'image',
+        'rating',
     ];
 
     public function shop()
