@@ -2,17 +2,6 @@
     <x-slot name="header">
         <h4 class="mb-0">Manajemen User</h4>
     </x-slot>
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -22,6 +11,8 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Seller Status</th>
+                        <th>User Status</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -31,37 +22,28 @@
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                <span class="badge bg-primary text-capitalize">
-                                    {{ $user->role }}
-                                </span>
+                                {{ $user->role }}
+                            </td>
+                            <td>
+                                {{ $user->seller_status_label }}
+                                @if ($user->seller_status == 1)
+                                    <x-general.action-button icon="mdi:check-circle" variant="primary"
+                                        onclick="approveSeller({{ $user->id }},'{{ $user->name }}')" />
+                                    <x-general.action-button icon="mdi:close-circle" variant="danger"
+                                        onclick="rejectSeller({{ $user->id }},'{{ $user->name }}')" />
+                                @endif
+                            </td>
+                            <td>
+                                {{ $user->status_label }}
                             </td>
                             <td class="text-center">
-                                @if ($user->role === 'buyer')
-                                    <form method="POST" action="{{ route('admin.users.promote', $user) }}"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Promosikan user ini menjadi seller?')">
-                                        @csrf
-                                        <x-general.action-button icon="material-symbols:arrow-circle-up" color="red"
-                                            title="Promote ke Seller" type="submit" />
-                                    </form>
-                                @else
-                                    <x-general.action-button icon="mdi:check-circle" color="gray" title="Sudah Seller"
-                                        disabled />
+                                @if ($user->status == 1)
+                                    <x-general.action-button icon="mdi:check-circle" title="nonaktifkan"
+                                        onclick="disableduser({{ $user->id }},'{{ $user->name }}')" />
+                                @elseif ($user->status == 0)
+                                    <x-general.action-button icon="mdi:check-circle" title="actifkan"
+                                        onclick="enableuser({{ $user->id }},'{{ $user->name }}')" />
                                 @endif
-
-                                @if ($user->role === 'seller')
-                                    <form method="POST" action="{{ route('admin.users.demote', $user) }}"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Promosikan user ini menjadi buyer?')">
-                                        @csrf
-                                        <x-general.action-button icon="material-symbols:arrow-circle-down"
-                                            color="red" title="Promote ke Seller" type="submit" />
-                                    </form>
-                                @else
-                                    <x-general.action-button icon="mdi:check-circle" color="gray" title="Sudah Buyer"
-                                        disabled />
-                                @endif
-
                             </td>
                         </tr>
                     @endforeach
@@ -70,3 +52,53 @@
         </div>
     </div>
 </x-app-layout>
+
+<form id="approve-form-{{ $user->id }}" action="{{ route('admin.users.promote', $user->id) }}" method="POST"
+    style="display:none;">
+    @csrf
+    @method('POST')
+</form>
+
+<form id="reject-form-{{ $user->id }}" action="{{ route('admin.users.reject', $user->id) }}" method="POST"
+    style="display:none;">
+    @csrf
+    @method('POST')
+</form>
+
+<script>
+    function approveSeller(id, name) {
+        console.log(id, name);
+
+        Swal.fire({
+            title: 'Aprrove ke Seller?',
+            text: `User ${name} akan di promosikan menjadi Seller`,
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`approve-form-${id}`).submit();
+            }
+        })
+    }
+
+        function rejectSeller(id, name) {
+        console.log(id, name);
+
+        Swal.fire({
+            title: 'Tolak permintaan Seller?',
+            text: `User ${name} akan di ditolak untuk menjadi Seller`,
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`reject-form-${id}`).submit();
+            }
+        })
+    }
+</script>

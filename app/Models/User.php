@@ -21,7 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'seller_status',
+        'status'
     ];
 
     /**
@@ -50,5 +52,22 @@ class User extends Authenticatable
     public function shop()
     {
         return $this->hasOne(Shop::class);
+    }
+
+    protected $appends = ['seller_status_label', 'status_label'];
+
+    public function getSellerStatusLabelAttribute()
+    {
+        return match ($this->seller_status) {
+            0 => 'None',
+            1 => 'Pending',
+            2 => 'Approved',
+            default => 'Unknown',
+        };
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        return $this->status == 1 ? 'Active' : 'Inactive';
     }
 }

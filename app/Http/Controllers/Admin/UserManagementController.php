@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class UserManagementController extends Controller
 {
-        public function index()
+    public function index()
     {
         $users = User::where('role', '!=', 'admin')->get();
 
@@ -17,15 +17,23 @@ class UserManagementController extends Controller
 
     public function promote(User $user)
     {
-        if ($user->role !== 'buyer') {
-            return back()->with('error', 'User tidak bisa dipromosikan');
-        }
 
         $user->update([
             'role' => 'seller',
+            'seller_status' => 2
         ]);
 
         return back()->with('success', 'User berhasil dipromosikan menjadi seller');
+    }
+
+    public function reject(User $user)
+    {
+
+        $user->update([
+            'seller_status' => 0
+        ]);
+
+        return back()->with('success', 'User ditolak untuk menjadi seller');
     }
 
     public function demote(User $user)

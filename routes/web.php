@@ -8,6 +8,10 @@ use App\Http\Controllers\Seller\ShopController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+
 Route::get('/', function () {
     if (!Auth::check()) {
         return redirect()->route('login');
@@ -40,8 +44,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/users/{user}/promote', [UserManagementController::class, 'promote'])
             ->name('users.promote');
 
-        Route::post('/users/{user}/demote', [UserManagementController::class, 'demote'])
-            ->name('users.demote');
+        Route::post('/users/{user}/reject', [UserManagementController::class, 'reject'])
+            ->name('users.reject');
 
         Route::resource('categories', CategoryController::class);
     });
