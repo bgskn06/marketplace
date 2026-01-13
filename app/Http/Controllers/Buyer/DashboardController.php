@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Product;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $query = \App\Models\Product::query();
+        $query = Product::query();
         if ($request->filled('q')) {
             $q = $request->input('q');
-            $query->where('title', 'like', "%{$q}%")->orWhere('description', 'like', "%{$q}%");
+            $query->where('name', 'like', "%{$q}%")->orWhere('description', 'like', "%{$q}%");
         }
         if ($request->filled('category')) {
             $query->where('category', $request->input('category'));
@@ -42,7 +43,7 @@ class DashboardController extends Controller
         ];
 
         $stats = [
-            'product_count' => \App\Models\Product::count(),
+            'product_count' => Product::count(),
             'top_rated_count' => Schema::hasColumn('products', 'rating') ? \App\Models\Product::where('rating', '>=', 4.5)->count() : 0,
             'shops_count' => \App\Models\Shop::count(),
         ];

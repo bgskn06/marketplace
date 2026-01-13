@@ -2,11 +2,23 @@
 
 <div data-item-id="{{ $item->id }}" class="reveal p-3 rounded-lg bg-white shadow-sm flex items-center gap-4 justify-between">
     <div class="flex items-center gap-4">
-        <div class="w-16 h-16 bg-gray-50 rounded-md flex items-center justify-center overflow-hidden">
-            @if(optional($item->product)->image)
-                <img src="{{ $item->product->image }}" alt="{{ optional($item->product)->name ?? optional($item->product)->title ?? 'Produk' }}" class="object-cover w-full h-full" />
+        <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+            @php
+                $photoPath = $item->product->mainPhoto?->path
+                    ?? $item->product->photos->first()?->path
+                    ?? null;
+            @endphp
+
+            @if ($photoPath)
+                <img
+                    src="{{ asset('storage/'.$photoPath) }}"
+                    alt="{{ $item->product->name }}"
+                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                >
             @else
-                <div class="text-sm text-indigo-400">GAMBAR</div>
+                <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                    No Image
+                </div>
             @endif
         </div>
 

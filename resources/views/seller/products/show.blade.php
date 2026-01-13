@@ -7,18 +7,18 @@
         </div>
 
         <div class="col-md-7">
-            <h3>{{ $product->nama_produk }}</h3>
+            <h3>{{ $product->name }}</h3>
 
             <h4 class="text-primary">
-                Rp {{ number_format($product->harga, 0, ',', '.') }}
+                Rp {{ number_format($product->price, 0, ',', '.') }}
             </h4>
 
             <p class="mt-3">
-                {{ $product->deskripsi ?? '-' }}
+                {{ $product->description ?? '-' }}
             </p>
 
             <p>
-                <strong>Stok:</strong> {{ $product->stok }}
+                <strong>Stok:</strong> {{ $product->stock }}
             </p>
 
             <div class="mt-4">
