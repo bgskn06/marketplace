@@ -9,6 +9,7 @@ class Product extends Model
     protected $fillable = [
         'shop_id',
         'name',
+        'category_id',
         'description',
         'price',
         'stock',
@@ -28,5 +29,10 @@ class Product extends Model
     public function mainPhoto()
     {
         return $this->morphOne(Photo::class, 'imageable')->latest();
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

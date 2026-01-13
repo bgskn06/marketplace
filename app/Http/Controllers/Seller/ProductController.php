@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,9 @@ class ProductController extends Controller
             ->latest()
             ->get();
 
-        return view('seller.products.index', compact('products'));
+        $categories = Category::all();
+
+        return view('seller.products.index', compact('products', 'categories'));
     }
 
     /**
@@ -39,6 +42,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'category_id' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -50,6 +54,7 @@ class ProductController extends Controller
         $product = Product::create([
             'shop_id' => Auth::user()->shop->id,
             'name' => $validated['name'],
+            'category_id' => $validated['category_id'],
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],
             'stock' => $validated['stock'],

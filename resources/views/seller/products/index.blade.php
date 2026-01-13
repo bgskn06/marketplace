@@ -129,6 +129,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Produk</th>
+                        <th>Kategori</th>
                         <th>Harga</th>
                         <th>Stok</th>
                         <th>Status</th>
@@ -150,6 +151,7 @@
                                     {{ $item->name }}
                                 </div>
                             </td>
+                            <td>{{ $item->category->name}}</td>
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->stock }}</td>
                             <td>{{ $item->is_active }}</td>
@@ -165,7 +167,7 @@
         </div>
     </div>
 
-    <div class="row">
+    {{-- <div class="row">
         @forelse ($products as $product)
             <div class="col-md-2 mb-4">
 
@@ -210,8 +212,7 @@
                 Belum ada produk
             </div>
         @endforelse
-    </div>
-
+    </div> --}}
 
     <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
@@ -230,6 +231,14 @@
                         <div class="form-group">
                             <label>Nama Produk</label>
                             <input type="text" name="name" class="form-control" required>
+                            <select name="category_id" class="form-control" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="form-group">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\ProductController;
@@ -41,6 +42,8 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::post('/users/{user}/demote', [UserManagementController::class, 'demote'])
             ->name('users.demote');
+
+        Route::resource('categories', CategoryController::class);
     });
 
 Route::middleware(['auth', 'role:seller'])

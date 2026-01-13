@@ -28,6 +28,15 @@
                 <span>Manajemen User</span>
             </a>
         </li>
+
+        <li class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+            <a class="nav-link d-flex align-items-center" href="{{ route('admin.categories.index') }}">
+                <span class="mr-2">
+                    <x-general.icon icon="material-symbols:category-rounded" size="20" />
+                </span>
+                <span>Manajemen Kategori</span>
+            </a>
+        </li>
     @endif
 
     @if (Auth::user()->role === 'seller')
