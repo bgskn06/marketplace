@@ -18,7 +18,9 @@
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
 
-    <link href="{{ asset('admin_assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    @if(!(auth()->check() && auth()->user()->role === 'buyer'))
+        <link href="{{ asset('admin_assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -31,34 +33,55 @@
 
     <div id="wrapper">
 
-        @include('layouts.sidebar')
-        <div id="content-wrapper" class="d-flex flex-column">
+        @if(auth()->check() && auth()->user()->role === 'buyer')
+            {{-- Buyer layout: full width, no admin sidebar or topbar --}}
+            <div id="content-wrapper" class="min-h-screen bg-gray-100 w-full">
+                <div id="content" class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        @isset($header)
+                            <div class="mb-4">
+                                <h1 class="text-2xl font-semibold text-gray-900">{{ $header }}</h1>
+                            </div>
+                        @endisset
 
-            <div id="content">
-
-                @include('layouts.topbar')
-                <div class="container-fluid">
-
-                    @isset($header)
-                        <div class="d-sm-flex mb-4">
-                            <h1 class="h3 mb-0 text-gray-800">{{ $header }}</h1>
-                        </div>
-                    @endisset
-
-                    <main>
-                        {{ $slot }}
-                    </main>
-
+                        <main>
+                            {{ $slot }}
+                        </main>
+                    </div>
                 </div>
             </div>
-            @include('layouts.footer')
-        </div>
-    </div>
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+        @else
+            {{-- Admin / Seller layout (original) --}}
+            @include('layouts.sidebar')
+            <div id="content-wrapper" class="d-flex flex-column">
 
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                <div id="content">
+
+                    @include('layouts.topbar')
+                    <div class="container-fluid">
+
+                        @isset($header)
+                            <div class="d-sm-flex mb-4">
+                                <h1 class="h3 mb-0 text-gray-800">{{ $header }}</h1>
+                            </div>
+                        @endisset
+
+                        <main>
+                            {{ $slot }}
+                        </main>
+
+                    </div>
+                </div>
+                @include('layouts.footer')
+            </div>
+        @endif
+
+    </div>
+    {{--  <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>  --}}
+
+    {{--  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -75,7 +98,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>  --}}
 
     <script src="{{ asset('admin_assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('admin_assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

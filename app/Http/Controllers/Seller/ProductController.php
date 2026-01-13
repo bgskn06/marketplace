@@ -19,6 +19,7 @@ class ProductController extends Controller
         $products = Auth::user()
             ->shop
             ->products()
+            ->with('photos')
             ->latest()
             ->get();
 
@@ -83,6 +84,7 @@ class ProductController extends Controller
         $product = Auth::user()
             ->shop
             ->products()
+            ->with('photos')
             ->findOrFail($product->id);
 
         return view('seller.products.show', compact('product'));
