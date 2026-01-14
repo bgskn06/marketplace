@@ -151,7 +151,7 @@
                                     {{ $item->name }}
                                 </div>
                             </td>
-                            <td>{{ $item->category->name}}</td>
+                            <td>{{ $item->category->name ?? ($item->category ?? '–') }}</td>
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->stock }}</td>
                             <td>{{ $item->is_active }}</td>

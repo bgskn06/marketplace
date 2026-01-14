@@ -56,6 +56,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('categories', CategoryController::class);
     });
 
+// Admin: Seller Requests
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/seller-requests', [App\Http\Controllers\Admin\SellerRequestController::class, 'index'])->name('admin.seller-requests.index');
+    Route::post('/seller-requests/{id}/approve', [App\Http\Controllers\Admin\SellerRequestController::class, 'approve'])->name('admin.seller-requests.approve');
+    Route::post('/seller-requests/{id}/reject', [App\Http\Controllers\Admin\SellerRequestController::class, 'reject'])->name('admin.seller-requests.reject');
+});
+
 Route::middleware(['auth', 'role:seller'])
     ->prefix('seller')
     ->name('seller.')
@@ -92,6 +99,14 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
 
     Route::post('/buyer/cart/add', [App\Http\Controllers\Buyer\CartController::class, 'add'])->name('buyer.cart.add');
     Route::delete('/buyer/cart/{item}', [App\Http\Controllers\Buyer\CartController::class, 'remove'])->name('buyer.cart.remove');
+});
+
+// Buyer: Form & proses daftar seller
+Route::middleware(['auth'])->group(function () {
+    Route::get('/buyer/register-seller', function () {
+        return view('Buyer.register-seller');
+    })->name('seller.register');
+    Route::post('/buyer/register-seller', [App\Http\Controllers\Buyer\RegisterSellerController::class, 'store'])->name('buyer.seller.register');
 });
 
 Route::middleware('auth')->get('/dashboard', function () {

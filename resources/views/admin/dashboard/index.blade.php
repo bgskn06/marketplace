@@ -321,4 +321,18 @@
 
         </div>
     </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Permohonan Seller Pending</div>
+            <div class="mt-2 text-2xl font-bold text-indigo-700">{{ \App\Models\SellerRequest::where('status','pending')->count() }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Permohonan Seller Disetujui</div>
+            <div class="mt-2 text-2xl font-bold text-green-700">{{ \App\Models\SellerRequest::where('status','approved')->count() }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Permohonan Seller Ditolak</div>
+            <div class="mt-2 text-2xl font-bold text-red-700">{{ \App\Models\SellerRequest::where('status','rejected')->count() }}</div>
+        </div>
+    </div>
 </x-app-layout>
