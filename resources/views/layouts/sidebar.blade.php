@@ -63,7 +63,7 @@
         <li class="nav-item {{ request()->routeIs('seller.chat.*') ? 'active' : '' }}">
             <a class="nav-link d-flex align-items-center" href="{{ route('seller.chat.index') }}">
                 <span class="mr-2">
-                    <x-general.icon icon="material-symbols:chat" size="20" />
+                    <x-general.icon icon="material-symbols:chat-outline" size="20" />
                 </span>
                 <span>Chat</span>
             </a>
