@@ -76,6 +76,20 @@
                 {{-- Area Pesan (Scrollable) --}}
                 <div id="chat-box" wire:poll.2000ms class="card-body overflow-auto d-flex flex-column"
                     style="height: 400px; background-color: #f8f9fa;">
+                    <div class="bg-base-200 p-3 flex items-center gap-3 border-b border-base-300">
+                        <div class="avatar rounded-lg">
+                            <div class="w-12 h-12 rounded">
+                                <img src="https://via.placeholder.com/150" alt="Sepatu Nike" />
+                            </div>
+                        </div>
+
+                        <div class="flex-1 text-sm">
+                            <div class="font-bold">Sepatu Sneakers Putih</div>
+                            <div class="text-primary font-bold">Rp 150.000</div>
+                        </div>
+
+                        <button class="btn btn-xs btn-outline">Lihat Produk</button>
+                    </div>
                     @php
                         $lastDate = null;
                     @endphp
@@ -101,7 +115,7 @@
                             </div>
                             @php $lastDate = $currentDate; @endphp
                         @endif
-                        
+
                         @php
                             $isMe = $msg->user_id == auth()->id();
                             $sender = $msg->user;
@@ -116,16 +130,46 @@
                             </div>
                             <div class="chat-header">
                                 {{ $isMe ? 'Anda' : $sender->name }}
-                                <time class="text-xs opacity-50 ml-1">{{ $msg->created_at->format('H:i') }}</time>
                             </div>
                             <div
                                 class="chat-bubble {{ $isMe ? 'chat-bubble-primary text-white' : 'chat-bubble-secondary' }}">
                                 {{ $msg->body }}
                             </div>
-                            <div class="chat-footer opacity-50">
+                            <div class="chat-footer opacity-50 flex items-center gap-2">
+
+                                {{-- TOMBOL HAPUS (Hanya muncul di pesan kita) --}}
                                 @if ($isMe)
-                                    <i
-                                        class="fas {{ $msg->is_read ? 'fa-check-double text-blue-500' : 'fa-check' }}"></i>
+                                    <button type="button" class="btn btn-ghost btn-xs text-error p-1 h-auto min-h-0"
+                                        title="Hapus Pesan" {{-- Event Click JavaScript --}}
+                                        @click="
+                                            Swal.fire({
+                                                title: 'Hapus pesan ini?',
+                                                text: 'Pesan akan dihapus permanen!',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#d33',
+                                                cancelButtonColor: '#3085d6',
+                                                confirmButtonText: 'Ya, Hapus!',
+                                                cancelButtonText: 'Batal'
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    $wire.deleteMessage({{ $msg->id }}); 
+                                                }
+                                            })
+                                        ">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                @endif
+
+                                {{-- Tanggal Jam --}}
+                                <time class="text-xs">{{ $msg->created_at->format('H:i') }}</time>
+
+                                {{-- Status Delivered/Read --}}
+                                @if ($isMe)
+                                    <span class="text-xs">
+                                        <i
+                                            class="fas {{ $msg->is_read ? 'fa-check-double text-blue-500' : 'fa-check' }}"></i>
+                                    </span>
                                 @endif
                             </div>
                         </div>
@@ -157,12 +201,9 @@
         </div>
     </div>
 
-    {{-- Script Auto Scroll --}}
-    {{-- Script Auto Scroll & Clear Input --}}
     <script>
         document.addEventListener('livewire:initialized', () => {
             const chatBox = document.getElementById('chat-box');
-            // Ganti selector di bawah jika Anda menggunakan <textarea> bukan <input>
             const chatInput = document.querySelector('input[wire\\:model="body"]');
 
             const scrollToBottom = () => {
@@ -171,17 +212,12 @@
                 }
             }
 
-            // 1. Scroll saat pertama kali load
             scrollToBottom();
 
-            // 2. Event Listener saat pesan dikirim/diterima
             Livewire.on('chat-updated', () => {
-                // Paksa input jadi kosong secara visual (UX lebih cepat)
                 if (chatInput) {
                     chatInput.value = '';
                 }
-
-                // Scroll ke bawah dengan sedikit delay agar elemen baru sempat dirender
                 setTimeout(() => {
                     scrollToBottom();
                 }, 100);
@@ -189,3 +225,22 @@
         });
     </script>
 </div>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        // ... script auto scroll yang lama ...
+
+        // Listener Hapus
+        Livewire.on('message-deleted', () => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            Toast.fire({
+                icon: 'success',
+                title: 'Pesan berhasil dihapus'
+            });
+        });
+    });
+</script>

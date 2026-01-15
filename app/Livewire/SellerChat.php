@@ -75,6 +75,22 @@ class SellerChat extends Component
         $this->dispatch('chat-updated');
     }
 
+    public function deleteMessage($messageId)
+    {
+        $message = Message::find($messageId);
+
+        if ($message && $message->user_id == Auth::id()) {
+            
+            $message->delete();
+
+            $this->loadConversations();
+            
+            // 4. Kirim notifikasi sukses (jika punya library notif/toaster)
+            // $this->dispatch('notify', 'Pesan dihapus');
+            $this->dispatch('message-deleted');
+        }
+    }
+
     public function render()
     {
         // 1. === LOGIC TAMBAHAN: AUTO READ SAAT CHAT TERBUKA ===
