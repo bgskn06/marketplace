@@ -31,10 +31,8 @@ class RegisterSellerController extends Controller
             'status' => 'pending',
         ]);
 
-        // Kirim email ke admin
         Mail::to(config('mail.admin_address', 'admin@example.com'))->send(new SellerRequestNotification($sellerRequest));
 
-        // Notifikasi ke admin (contoh: log, bisa diganti email/notifikasi dashboard)
         Log::info('Permohonan Seller Baru (notifikasi admin)', [
             'user_id' => Auth::id(),
             'shop_name' => $request->shop_name,

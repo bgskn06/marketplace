@@ -98,7 +98,12 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/api/products', [App\Http\Controllers\Api\ProductController::class, 'index'])->name('api.products');
 
     Route::post('/buyer/cart/add', [App\Http\Controllers\Buyer\CartController::class, 'add'])->name('buyer.cart.add');
+    Route::patch('/buyer/cart/{item}', [App\Http\Controllers\Buyer\CartController::class, 'update'])->name('buyer.cart.update');
     Route::delete('/buyer/cart/{item}', [App\Http\Controllers\Buyer\CartController::class, 'remove'])->name('buyer.cart.remove');
+    Route::get('/buyer/cart/checkout', [App\Http\Controllers\Buyer\CartController::class, 'showCheckout'])->name('buyer.cart.checkout.show');
+    Route::post('/buyer/cart/checkout', [App\Http\Controllers\Buyer\CartController::class, 'checkout'])->name('buyer.cart.checkout');
+    Route::post('/cart/update/{item}', [CartController::class, 'update']);
+    Route::post('/cart/remove/{item}', [CartController::class, 'remove']);
 });
 
 // Buyer: Form & proses daftar seller

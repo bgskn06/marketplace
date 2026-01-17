@@ -39,7 +39,7 @@
         {{-- CATEGORY + RATING --}}
         <div class="flex items-center gap-2 mt-2 text-xs min-h-[20px]">
             <span class="text-gray-500 truncate">
-                {{ $product->category ?? '—' }}
+                {{ is_object($product->category) ? $product->category->name : ($product->category ?? ($category_id?->name ?? '-')) }}
             </span>
             <span class="inline-flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded">
                 ⭐ {{ number_format($product->rating ?? 0,1) }}
@@ -67,7 +67,7 @@
                 href="{{ route('products.show', $product->id) }}"
                 class="flex-1 text-center px-3 py-1.5 text-xs border rounded-md text-indigo-600 hover:bg-gray-50 whitespace-nowrap"
             >
-                Detail
+                Detai
             </a>
 
             <form method="POST" action="{{ route('buyer.cart.add') }}" class="flex-1">
@@ -75,7 +75,8 @@
                 <input type="hidden" name="product_id" value="{{ $product->id }}" />
                 <button
                     type="submit"
-                    class="w-full px-3 py-1.5 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition whitespace-nowrap"
+                    class="btn btn-primary btn-sm w-full"
+                    aria-label="Tambah ke keranjang"
                 >
                     Tambah
                 </button>
