@@ -51,19 +51,18 @@
             </table>
         </div>
     </div>
+    <form id="approve-form" method="POST" style="display:none;">
+        @csrf
+        @method('POST')
+    </form>
+
+    <form id="reject-form" action="{{ route('admin.users.reject', $user->id) }}" method="POST" style="display:none;">
+        @csrf
+        @method('POST')
+    </form>
 </x-app-layout>
 
-<form id="approve-form-{{ $user->id }}" action="{{ route('admin.users.promote', $user->id) }}" method="POST"
-    style="display:none;">
-    @csrf
-    @method('POST')
-</form>
 
-<form id="reject-form-{{ $user->id }}" action="{{ route('admin.users.reject', $user->id) }}" method="POST"
-    style="display:none;">
-    @csrf
-    @method('POST')
-</form>
 
 <script>
     function approveSeller(id, name) {
@@ -79,12 +78,14 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById(`approve-form-${id}`).submit();
+                const form = document.getElementById('approve-form')
+                form.action = `/admin/users/${id}/promote`
+                form.submit()
             }
         })
     }
 
-        function rejectSeller(id, name) {
+    function rejectSeller(id, name) {
         console.log(id, name);
 
         Swal.fire({
@@ -97,7 +98,7 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById(`reject-form-${id}`).submit();
+                document.getElementById(`reject-form`).submit();
             }
         })
     }

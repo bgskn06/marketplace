@@ -84,4 +84,16 @@ class User extends Authenticatable
     {
         return $this->status == 1 ? 'Active' : 'Inactive';
     }
+
+    protected $dates = ['last_seen']; 
+    protected $casts = [
+        'last_seen' => 'datetime', 
+    ];
+
+    // Helper untuk cek online (Batas 2 menit dianggap online)
+    public function isOnline()
+    {
+        if (!$this->last_seen) return false;
+        return $this->last_seen->diffInMinutes(now()) < 2;
+    }
 }

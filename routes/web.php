@@ -8,6 +8,8 @@ use App\Http\Controllers\Seller\ShopController;
 use App\Http\Controllers\Buyer\DashboardController;
 use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\PagesController;
+use App\Http\Controllers\Seller\ChatController;
+use App\Livewire\Chat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -85,6 +87,9 @@ Route::middleware(['auth', 'role:seller'])
         Route::middleware('seller.shop')->group(function () {
             Route::resource('products', ProductController::class);
         });
+
+        Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat/{user}', Chat::class)->name('chat');
     });
 
 Route::middleware(['auth', 'role:buyer'])->group(function () {

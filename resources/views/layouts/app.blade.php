@@ -17,9 +17,10 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-    {{--  @if(!(auth()->check() && auth()->user()->role === 'buyer'))  --}}
+
+    {{-- @if(!(auth()->check() && auth()->user()->role === 'buyer')) --}}
         <link href="{{ asset('admin_assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
-    {{--  @endif  --}}
+    {{-- @endif --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
