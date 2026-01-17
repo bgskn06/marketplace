@@ -151,7 +151,7 @@
                                     {{ $item->name }}
                                 </div>
                             </td>
-                            <td>{{ $item->category->name}}</td>
+                            <td>{{ $item->category->name }}</td>
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->stock }}</td>
                             <td>{{ $item->is_active }}</td>
@@ -167,54 +167,12 @@
         </div>
     </div>
 
-    {{-- <div class="row">
-        @forelse ($products as $product)
-            <div class="col-md-2 mb-4">
+    <form id="delete-form" method="POST" style="display:none;">
+        @csrf
+        @method('DELETE')
+    </form>
 
-                <div class="card product-card shadow-sm">
-
-                    <div class="product-slider" data-index="0">
-                        @foreach ($product->photos as $photo)
-                            <img src="{{ asset('storage/' . $photo->path) }}"
-                                class="slider-image {{ $loop->first ? 'active' : '' }}">
-                        @endforeach
-
-                        @if ($product->photos->count() > 1)
-                            <button class="slider-btn prev">‹</button>
-                            <button class="slider-btn next">›</button>
-                        @endif
-                    </div>
-                    <a href="{{ route('seller.products.show', $product) }}" class="text-decoration-none text-dark">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                {{ $product->name }}
-                            </h6>
-
-                            <p class="mb-1 text-primary fw-bold">
-                                Rp {{ number_format($product->price, 0, ',', '.') }}
-                            </p>
-
-                            <small class="text-muted">
-                                Stok: {{ $product->stock }}
-                            </small>
-                        </div>
-                    </a>
-
-                    <button class="btn btn-sm btn-danger btn-delete" data-id="{{ $product->id }}"
-                        data-name="{{ $product->name }}">
-                        <x-general.icon icon="iconamoon:trash-bold" />
-                    </button>
-
-                </div>
-            </div>
-        @empty
-            <div class="col-12 text-center text-muted">
-                Belum ada produk
-            </div>
-        @endforelse
-    </div> --}}
-
-    <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog">
+    <div class="modal" id="createProductModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <form action="{{ route('seller.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -274,13 +232,7 @@
             </form>
         </div>
     </div>
-
-
 </x-app-layout>
-<form id="delete-form" method="POST" style="display:none;">
-    @csrf
-    @method('DELETE')
-</form>
 
 <script>
     function deleteProduct(id, name) {
@@ -397,4 +349,15 @@
             show(index)
         })
     })
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Pindahkan modal ke luar dari pembungkus apapun, langsung ke body
+        $('#createProductModal').appendTo("body");
+        
+        // 2. Jika ada error dari server (validasi gagal), buka modalnya lagi
+        @if ($errors->any())
+            $('#createProductModal').modal('show');
+        @endif
+    });
 </script>

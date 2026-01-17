@@ -9,7 +9,9 @@
                 <a href="{{ route('buyer.dashboard') }}" class="text-gray-700 hover:text-indigo-700">Home</a>
                 <a href="{{ route('buyer.orders') }}" class="text-gray-700 hover:text-indigo-700">Orders</a>
                 <a href="{{ route('buyer.messages') }}" class="text-gray-700 hover:text-indigo-700">Messages</a>
-                <a href="{{ route('buyer.cart') }}" class="text-gray-700 hover:text-indigo-700">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                <a href="{{ route('buyer.cart') }}" class="text-gray-700 hover:text-indigo-700">Cart <span
+                        class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700"
+                        x-text="cartCount"></span></a>
                 <a href="{{ route('buyer.profile') }}" class="text-gray-700 hover:text-indigo-700">Profile</a>
             </nav>
         </div>
@@ -25,23 +27,34 @@
                                 @php
                                     // Prefer product->image column, fallback to photos
                                     if (!empty($product->image)) {
-                                        $mainImg = \Illuminate\Support\Str::startsWith($product->image, ['http://', 'https://']) ? $product->image : asset('storage/'.$product->image);
+                                        $mainImg = \Illuminate\Support\Str::startsWith($product->image, [
+                                            'http://',
+                                            'https://',
+                                        ])
+                                            ? $product->image
+                                            : asset('storage/' . $product->image);
                                     } else {
-                                        $mainImg = $product->photos->first()?->path ? asset('storage/'.$product->photos->first()->path) : null;
+                                        $mainImg = $product->photos->first()?->path
+                                            ? asset('storage/' . $product->photos->first()->path)
+                                            : null;
                                     }
                                 @endphp
 
-                                @if($mainImg)
-                                    <img id="main-product-image" src="{{ $mainImg }}" class="w-full h-96 object-cover rounded-md" alt="{{ $product->name }}" />
+                                @if ($mainImg)
+                                    <img id="main-product-image" src="{{ $mainImg }}"
+                                        class="w-full h-96 object-cover rounded-md" alt="{{ $product->name }}" />
                                 @else
-                                    <div class="w-full h-96 flex items-center justify-center text-gray-400">No image</div>
+                                    <div class="w-full h-96 flex items-center justify-center text-gray-400">No image
+                                    </div>
                                 @endif
 
-                                @if($product->photos->count() > 1)
+                                @if ($product->photos->count() > 1)
                                     <div class="mt-3 grid grid-cols-4 gap-2">
-                                        @foreach($product->photos as $photo)
-                                            <button type="button" onclick="document.getElementById('main-product-image').src='{{ asset('storage/'.$photo->path) }}'">
-                                                <img src="{{ asset('storage/'.$photo->path) }}" class="w-full h-16 object-cover rounded-md" />
+                                        @foreach ($product->photos as $photo)
+                                            <button type="button"
+                                                onclick="document.getElementById('main-product-image').src='{{ asset('storage/' . $photo->path) }}'">
+                                                <img src="{{ asset('storage/' . $photo->path) }}"
+                                                    class="w-full h-16 object-cover rounded-md" />
                                             </button>
                                         @endforeach
                                     </div>
@@ -52,18 +65,78 @@
                         <div class="w-full md:w-1/2">
                             <h2 class="text-xl font-bold text-gray-800">{{ $product->name }}</h2>
                             <div class="text-sm text-gray-500">{{ $product->category }}</div>
-                            <div class="mt-4 text-3xl font-extrabold text-indigo-700">Rp{{ number_format($product->price ?? $product->harga ?? 0,0,',','.') }}</div>
+                            <div class="mt-4 text-3xl font-extrabold text-indigo-700">
+                                Rp{{ number_format($product->price ?? ($product->harga ?? 0), 0, ',', '.') }}</div>
                             <div class="mt-4 text-gray-700">{!! nl2br(e($product->description)) !!}</div>
 
-                            <form method="POST" action="{{ route('buyer.cart.add') }}" class="mt-6">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                                <div class="flex items-center gap-3">
-                                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md">Tambah ke Keranjang</button>
-                                    <div class="text-sm text-gray-500">Stok: <strong>{{ $product->stock }}</strong></div>
-                                </div>
-                            </form>
+                            <div class="mt-6">
 
+                                <div class="flex flex-wrap items-center gap-3">
+
+                                    {{-- 1. TOMBOL CHAT (Gaya 2: Product Context) --}}
+                                    @auth
+                                        @if (auth()->id() !== $product->user_id)
+                                            {{-- Form untuk Trigger Chat Controller --}}
+                                            <form action="{{ route('chat.start', $product->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 flex items-center gap-2 transition">
+                                                    {{-- Ikon Chat SVG --}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.186.078-2.1 1.075-2.1 2.2v4.286c0 .197.03.388.077.57m0 0a5.026 5.026 0 0 1-1.097-.076 3.016 3.016 0 0 0-.75.408l-2.146 2.147a.5.5 0 0 1-.778-.363V15.93c-1.136-.092-1.98-1.057-1.98-2.193v-4.286c0-.97.616-1.813 1.5-2.097" />
+                                                    </svg>
+                                                    Chat Penjual
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Jika Pemilik Produk Melihat Produk Sendiri --}}
+                                            <button disabled
+                                                class="px-4 py-2 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                                Produk Anda
+                                            </button>
+                                        @endif
+                                    @else
+                                        {{-- Jika Belum Login (Redirect ke Login) --}}
+                                        <a href="{{ route('login') }}"
+                                            class="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 flex items-center gap-2 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.186.078-2.1 1.075-2.1 2.2v4.286c0 .197.03.388.077.57m0 0a5.026 5.026 0 0 1-1.097-.076 3.016 3.016 0 0 0-.75.408l-2.146 2.147a.5.5 0 0 1-.778-.363V15.93c-1.136-.092-1.98-1.057-1.98-2.193v-4.286c0-.97.616-1.813 1.5-2.097" />
+                                            </svg>
+                                            Chat Login
+                                        </a>
+                                    @endauth
+
+                                    {{-- 2. TOMBOL KERANJANG (Asli Anda) --}}
+                                    <form method="POST" action="{{ route('buyer.cart.add') }}">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition">
+                                            {{-- Ikon Keranjang --}}
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                                            </svg>
+                                            + Keranjang
+                                        </button>
+                                    </form>
+
+                                </div>
+
+                                <div class="mt-3 text-sm text-gray-500">Stok Tersedia:
+                                    <strong>{{ $product->stock }}</strong></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -77,7 +150,8 @@
             <aside class="hidden lg:block">
                 <div class="bg-white rounded-lg shadow p-4">
                     <h4 class="font-semibold text-gray-800">Penjual</h4>
-                    <div class="text-sm text-gray-600 mt-2">{{ optional($product->shop)->name ?? 'Penjual Tidak Diketahui' }}</div>
+                    <div class="text-sm text-gray-600 mt-2">
+                        {{ optional($product->shop)->name ?? 'Penjual Tidak Diketahui' }}</div>
                     <a href="#" class="mt-3 inline-block text-indigo-600">Lihat Toko</a>
                 </div>
 

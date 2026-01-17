@@ -54,9 +54,9 @@
         <li class="nav-item {{ request()->routeIs('seller.products.*') ? 'active' : '' }}">
             <a class="nav-link d-flex align-items-center" href="{{ route('seller.products.index') }}">
                 <span class="mr-2">
-                    <x-general.icon icon="gridicons:product" size="20" />
+                    <x-general.icon icon="lets-icons:order" size="20" />
                 </span>
-                <span>Product</span>
+                <span>Pesanan</span>
             </a>
         </li>
 
@@ -66,6 +66,15 @@
                     <x-general.icon icon="material-symbols:chat-outline" size="20" />
                 </span>
                 <span>Chat</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->routeIs('seller.products.*') ? 'active' : '' }}">
+            <a class="nav-link d-flex align-items-center" href="{{ route('seller.products.index') }}">
+                <span class="mr-2">
+                    <x-general.icon icon="gridicons:product" size="20" />
+                </span>
+                <span>Product</span>
             </a>
         </li>
     @endif
