@@ -189,11 +189,18 @@ class CartController extends Controller
 
             $order = \App\Models\Order::create($orderData);
 
-            // group items by seller so we can notify them later, decrement stock and clear cart
+            // create order items, group items by seller so we can notify them later, decrement stock and clear cart
             $sellerGroups = [];
             foreach ($items as $item) {
                 $p = $item->product;
                 if ($p) {
+                    // create order item snapshot
+                    $order->orderItems()->create([
+                        'product_id' => $p->id,
+                        'quantity' => $item->quantity,
+                        'price' => $p->price ?? $p->harga ?? 0,
+                    ]);
+
                     $p->decrement('stock', $item->quantity);
                 }
 

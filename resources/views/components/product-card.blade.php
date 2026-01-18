@@ -65,7 +65,7 @@
         <div class="mt-auto flex items-center justify-between gap-2">
             <a
                 href="{{ route('products.show', $product->id) }}"
-                class="flex-1 text-center px-3 py-1.5 text-xs border rounded-md text-indigo-600 hover:bg-gray-50 whitespace-nowrap"
+                class="btn btn-outline-primary btn-sm text-nowrap w-100"
             >
                 Detai
             </a>

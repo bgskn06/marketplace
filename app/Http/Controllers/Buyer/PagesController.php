@@ -10,7 +10,7 @@ class PagesController extends Controller
     public function orders()
     {
         $user = auth()->user();
-        $orders = $user ? $user->orders()->latest()->get() : collect();
+        $orders = $user ? $user->orders()->with(['orderItems.product'])->latest()->get() : collect();
         return view('buyer.orders', compact('orders'));
     }
     public function messages()

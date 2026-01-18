@@ -107,9 +107,21 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::delete('/buyer/cart/{item}', [App\Http\Controllers\Buyer\CartController::class, 'remove'])->name('buyer.cart.remove');
     Route::get('/buyer/cart/checkout', [App\Http\Controllers\Buyer\CartController::class, 'showCheckout'])->name('buyer.cart.checkout.show');
     Route::post('/buyer/cart/checkout', [App\Http\Controllers\Buyer\CartController::class, 'checkout'])->name('buyer.cart.checkout');
+
+    // Product reviews
+    Route::post('/buyer/products/{product}/reviews', [App\Http\Controllers\Buyer\ProductReviewController::class, 'store'])->name('buyer.products.reviews.store');
+
     Route::post('/cart/update/{item}', [CartController::class, 'update']);
     Route::post('/cart/remove/{item}', [CartController::class, 'remove']);
 });
+
+// Public Shop pages
+Route::get('/shops/{shop}', [App\Http\Controllers\Buyer\ShopController::class, 'show'])->name('shops.show');
+
+// Shop interactions
+Route::post('/shops/{shop}/follow', [App\Http\Controllers\Buyer\ShopFollowController::class, 'store'])->name('shops.follow');
+Route::delete('/shops/{shop}/follow', [App\Http\Controllers\Buyer\ShopFollowController::class, 'destroy'])->name('shops.unfollow');
+Route::post('/shops/{shop}/reviews', [App\Http\Controllers\Buyer\ShopReviewController::class, 'store'])->name('shops.reviews.store');
 
 // Buyer: Form & proses daftar seller
 Route::middleware(['auth'])->group(function () {

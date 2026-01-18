@@ -1,4 +1,28 @@
 <x-app-layout>
+    <style>
+        .carousel-banner {
+        height: 400px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        }
+
+        /* Tablet */
+        @media (max-width: 992px) {
+        .carousel-banner {
+        height: 400px;
+        }
+        }
+
+        /* Mobile */
+        @media (max-width: 576px) {
+        .carousel-banner {
+        height: 280px;
+        }
+        }
+
+
+    </style>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-semibold text-gray-900">
@@ -36,31 +60,54 @@
 
             {{-- Summary cards --}}
             <section class="mb-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="text-sm text-gray-500">Keranjang</div>
-                        <div class="mt-2 text-2xl font-bold text-indigo-700">{{ $summary['cart_count'] ?? 0 }}</div>
-                        <div class="mt-2 text-xs text-gray-500">Items dalam keranjang</div>
+                <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+
+                    <!-- Indicators -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2"></button>
+                        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="3"></button>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="text-sm text-gray-500">Pesanan</div>
-                        <div class="mt-2 text-2xl font-bold text-indigo-700">{{ $summary['orders_count'] ?? 0 }}</div>
-                        <div class="mt-2 text-xs text-gray-500">Pesanan yang dibuat</div>
+                    <!-- Slides -->
+                    <div class="carousel-inner">
+
+                        <div class="carousel-item active">
+                            <div class="carousel-banner" style="background-image: url('{{ asset('images/carousel/slide1.png') }}');">
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-banner" style="background-image: url('{{ asset('images/carousel/slide2.png') }}');">
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-banner" style="background-image: url('{{ asset('images/carousel/slide3.png') }}');">
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-banner" style="background-image: url('{{ asset('images/carousel/slide4.png') }}');">
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="text-sm text-gray-500">Produk</div>
-                        <div class="mt-2 text-2xl font-bold text-indigo-700">{{ $stats['product_count'] ?? 0 }}</div>
-                        <div class="mt-2 text-xs text-gray-500">Total produk tersedia</div>
-                    </div>
+                    <!-- Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
 
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="text-sm text-gray-500">Top Rated</div>
-                        <div class="mt-2 text-2xl font-bold text-indigo-700">{{ $stats['top_rated_count'] ?? 0 }}</div>
-                        <div class="mt-2 text-xs text-gray-500">Produk rating ≥ 4.5</div>
-                    </div>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+
                 </div>
+
+
+
             </section>
 
             <div class="grid grid-cols-12 gap-6" x-data="{filtersOpen:false}">
@@ -78,9 +125,9 @@
                         <label class="block text-gray-600">Kategori</label>
                         <select name="category" class="w-full mt-1 border-gray-200 rounded-md text-sm">
                             <option value="">Semua Kategori</option>
-                            <option value="Elektronik" {{ request('category') == 'Elektronik' ? 'selected' : '' }}>Elektronik</option>
-                            <option value="Fashion" {{ request('category') == 'Fashion' ? 'selected' : '' }}>Fashion</option>
-                            <option value="Rumah & Dapur" {{ request('category') == 'Rumah & Dapur' ? 'selected' : '' }}>Rumah & Dapur</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->name }}" {{ request('category') == $category->name ? 'selected' : '' }}>{{ $category->name }}</option>
+                            @endforeach
                         </select>
                         </div>
 
@@ -112,9 +159,9 @@
                         <label class="block text-gray-600">Kategori</label>
                         <select name="category" class="w-full mt-1 border-gray-200 rounded-md text-sm">
                             <option value="">Semua Kategori</option>
-                            <option value="Elektronik" {{ request('category') == 'Elektronik' ? 'selected' : '' }}>Elektronik</option>
-                            <option value="Fashion" {{ request('category') == 'Fashion' ? 'selected' : '' }}>Fashion</option>
-                            <option value="Rumah & Dapur" {{ request('category') == 'Rumah & Dapur' ? 'selected' : '' }}>Rumah & Dapur</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->name }}" {{ request('category') == $category->name ? 'selected' : '' }}>{{ $category->name }}</option>
+                            @endforeach
                         </select>
                         </div>
 
@@ -142,8 +189,8 @@
 
                     <div class="mt-4 bg-white rounded-lg shadow p-4">
                     <h3 class="font-semibold text-gray-700 mb-3">Ringkasan Keranjang</h3>
-                    <div class="text-sm text-gray-600">0 item • Total: <strong class="text-gray-900">Rp0</strong></div>
-                    <a href="#" class="mt-3 block text-center bg-green-500 text-white rounded-md py-2">Lihat Keranjang</a>
+                    <div class="text-sm text-gray-600">{{ $cartSummary['count'] ?? 0 }} item • Total: <strong class="text-gray-900">Rp{{ number_format($cartSummary['total'] ?? 0,0,',','.') }}</strong></div>
+                    <a href="{{ route('buyer.cart') }}" class="mt-3 block text-center bg-green-500 text-white rounded-md py-2">Lihat Keranjang</a>
                     </div>
                 </aside>
 
@@ -177,36 +224,43 @@
                     <div class="bg-white/95 rounded-lg shadow p-4 border-l-4 border-indigo-300">
                     <h3 class="font-semibold text-indigo-700 mb-3">Pesanan Terbaru</h3>
                     <ul class="space-y-3 text-sm text-gray-600">
+                        @forelse($recentOrders as $order)
                         <li class="flex items-center justify-between">
-                        <div>
-                            <div class="font-medium text-gray-800">#INV-1023</div>
-                            <div class="text-xs">Dikirim ke: Jl. Contoh No.1</div>
-                        </div>
-                        <div class="text-green-600 font-semibold">Selesai</div>
+                            <div>
+                                <div class="font-medium text-gray-800">#{{ $order->invoice_number }}</div>
+                                <div class="text-xs">Dikirim ke: {{ $order->shipping_address }}</div>
+                            </div>
+                            <div class="font-semibold {{ $order->status == 'Selesai' ? 'text-green-600' : ($order->status == 'Sedang dikirim' ? 'text-yellow-600' : 'text-gray-600') }}">{{ $order->status }}</div>
                         </li>
-                        <li class="flex items-center justify-between">
-                        <div>
-                            <div class="font-medium text-gray-800">#INV-1022</div>
-                            <div class="text-xs">Dikirim ke: Jl. Contoh No.2</div>
-                        </div>
-                        <div class="text-yellow-600 font-semibold">Sedang dikirim</div>
-                        </li>
+                        @empty
+                        <li>Tidak ada pesanan terbaru.</li>
+                        @endforelse
                     </ul>
-                    <a href="#" class="mt-3 block text-center text-indigo-600">Lihat semua pesanan</a>
+                    <a href="{{ route('buyer.orders') }}" class="mt-3 block text-center text-indigo-600">Lihat semua pesanan</a>
                     </div>
 
                     <div class="mt-4 bg-white/95 rounded-lg shadow p-4 border-l-4 border-pink-300">
                     <h3 class="font-semibold text-pink-600 mb-3">Pesan</h3>
-                    <div class="text-sm text-gray-600">Tidak ada pesan baru.</div>
-                    <a href="#" class="mt-3 block text-center text-pink-600">Buka pesan</a>
+                    @if(count($recentMessages) > 0)
+                        @foreach($recentMessages as $msg)
+                            <div class="text-sm text-gray-600 mb-1">
+                                <span class="font-medium text-gray-800">{{ $msg->sender_name }}:</span> {{ \Illuminate\Support\Str::limit($msg->content, 30) }}
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-sm text-gray-600">Tidak ada pesan baru.</div>
+                    @endif
+                    <a href="{{ route('buyer.messages') }}" class="mt-3 block text-center text-pink-600">Buka pesan</a>
                     </div>
 
                     <div class="mt-4 bg-white/95 rounded-lg shadow p-4 border-l-4 border-yellow-300">
                     <h3 class="font-semibold text-yellow-700 mb-3">Penjual Direkomendasikan</h3>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li>Penjual A • ⭐ 4.8</li>
-                        <li>Penjual B • ⭐ 4.7</li>
-                        <li>Penjual C • ⭐ 4.6</li>
+                        @forelse($recommendedSellers as $seller)
+                            <li>{{ $seller->name }} • ⭐ {{ number_format($seller->rating, 1) }}</li>
+                        @empty
+                            <li>Tidak ada penjual direkomendasikan.</li>
+                        @endforelse
                     </ul>
                     </div>
                 </aside>
@@ -214,3 +268,6 @@
         </main>
     </div>
 </x-app-layout>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
