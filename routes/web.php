@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/chat/start/{product}', [ChatController::class, 'startChatWithProduct'])
         ->name('chat.start');
-        
+
     Route::get('/chat/{conversation_id?}', \App\Livewire\SellerChat::class)
         ->name('chat.index');
 });
@@ -71,11 +71,11 @@ Route::middleware(['auth', 'role:admin'])
     });
 
 // Admin: Seller Requests
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/seller-requests', [App\Http\Controllers\Admin\SellerRequestController::class, 'index'])->name('admin.seller-requests.index');
-    Route::post('/seller-requests/{id}/approve', [App\Http\Controllers\Admin\SellerRequestController::class, 'approve'])->name('admin.seller-requests.approve');
-    Route::post('/seller-requests/{id}/reject', [App\Http\Controllers\Admin\SellerRequestController::class, 'reject'])->name('admin.seller-requests.reject');
-});
+// Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+//     Route::get('/seller-requests', [App\Http\Controllers\Admin\SellerRequestController::class, 'index'])->name('admin.seller-requests.index');
+//     Route::post('/seller-requests/{id}/approve', [App\Http\Controllers\Admin\SellerRequestController::class, 'approve'])->name('admin.seller-requests.approve');
+//     Route::post('/seller-requests/{id}/reject', [App\Http\Controllers\Admin\SellerRequestController::class, 'reject'])->name('admin.seller-requests.reject');
+// });
 
 Route::middleware(['auth', 'role:seller'])
     ->prefix('seller')
@@ -96,9 +96,14 @@ Route::middleware(['auth', 'role:seller'])
         Route::post('/shop', [ShopController::class, 'store'])
             ->name('shop.store');
 
+
         Route::middleware('seller.shop')->group(function () {
             Route::resource('products', ProductController::class);
         });
+
+        Route::get('/orders', function () {
+            return view('seller.order.index');
+        })->name('orders');
 
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
         Route::get('/chat/{user}', Chat::class)->name('chat');

@@ -51,8 +51,8 @@
             </a>
         </li>
 
-        <li class="nav-item {{ request()->routeIs('seller.products.*') ? 'active' : '' }}">
-            <a class="nav-link d-flex align-items-center" href="{{ route('seller.products.index') }}">
+        <li class="nav-item {{ request()->routeIs('seller.orders.*') ? 'active' : '' }}">
+            <a class="nav-link d-flex align-items-center" href="{{ route('seller.orders') }}">
                 <span class="mr-2">
                     <x-general.icon icon="lets-icons:order" size="20" />
                 </span>
