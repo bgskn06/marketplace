@@ -61,6 +61,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/users/{user}/reject', [UserManagementController::class, 'reject'])
             ->name('users.reject');
 
+        Route::post('/users/{user}/activated', [UserManagementController::class, 'activatedUser'])
+            ->name('users.activated');
+
+        Route::post('/users/{user}/deactivated', [UserManagementController::class, 'deactivatedUser'])
+            ->name('users.deactivated');
+
         Route::resource('categories', CategoryController::class);
     });
 

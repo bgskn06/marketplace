@@ -38,10 +38,10 @@
                             </td>
                             <td class="text-center">
                                 @if ($user->status == 1)
-                                    <x-general.action-button icon="mdi:check-circle" title="nonaktifkan"
+                                    <x-general.action-button icon="mdi:account-off" variant="danger" title="nonaktifkan"
                                         onclick="disableduser({{ $user->id }},'{{ $user->name }}')" />
                                 @elseif ($user->status == 0)
-                                    <x-general.action-button icon="mdi:check-circle" title="actifkan"
+                                    <x-general.action-button icon="mdi:account-check" title="aktifkan"
                                         onclick="enableuser({{ $user->id }},'{{ $user->name }}')" />
                                 @endif
                             </td>
@@ -56,7 +56,17 @@
         @method('POST')
     </form>
 
-    <form id="reject-form" action="{{ route('admin.users.reject', $user->id) }}" method="POST" style="display:none;">
+    <form id="reject-form"  method="POST" style="display:none;">
+        @csrf
+        @method('POST')
+    </form>
+
+    <form id="active-form"  method="POST" style="display:none;">
+        @csrf
+        @method('POST')
+    </form>
+
+    <form id="nonactive-form"  method="POST" style="display:none;">
         @csrf
         @method('POST')
     </form>
@@ -98,7 +108,51 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById(`reject-form`).submit();
+                const form = document.getElementById(`reject-form`)
+                form.action = `/admin/users/${id}/reject`
+                form.submit()
+            }
+        })
+    }
+
+    function enableuser(id,name){
+        console.log(id,name);
+
+        Swal.fire({
+            title: 'Aktifkan User?',
+            text: `User ${name} akan di aktifkan`,
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log = "user diaktifkan";
+                const form = document.getElementById(`active-form`)
+                form.action = `/admin/users/${id}/activated`
+                form.submit()
+            }
+        })
+    }
+
+    function disableduser(id,name){
+        console.log(id,name);
+
+        Swal.fire({
+            title: 'Nonaktifkan User?',
+            text: `User ${name} akan di nonaktifkan`,
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log = "user dinonaktifkan";
+                const form = document.getElementById(`nonactive-form`)
+                form.action = `/admin/users/${id}/deactivated`
+                form.submit()
             }
         })
     }

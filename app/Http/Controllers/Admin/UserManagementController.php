@@ -48,4 +48,28 @@ class UserManagementController extends Controller
 
         return back()->with('success', 'User berhasil dipromosikan menjadi buyer');
     }
+
+    public function activatedUser(User $user){
+        if($user->status !== 0){
+            return back()->with('error', ' User sudah aktif');
+        }
+
+        $user->update([
+            'status' => 1
+        ]);
+
+        return back()->with('success', 'User berhasil diaktifkan');
+    }
+
+    public function deactivatedUser(User $user){
+        if($user->status !== 1){
+            return back()->with('error', ' User sudah nonaktif');
+        }
+
+        $user->update([
+            'status' => 0
+        ]);
+
+        return back()->with('success', 'User berhasil di nonaktifkan');
+    }
 }
