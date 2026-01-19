@@ -63,31 +63,24 @@
         </div>
     </header>
 
-    <main class="max-w-lg mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="font-semibold text-indigo-700 text-lg mb-2">Formulir Pendaftaran Seller</h2>
-            <form method="POST" action="{{ route('buyer.seller.register') }}">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-600">Nama Toko</label>
-                    <input name="shop_name" class="w-full mt-1 border-gray-200 rounded-md p-2" required>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white/95 rounded-lg shadow p-4 border-l-4 border-indigo-300">
+            <h2 class="font-semibold text-indigo-700 text-lg mb-4">Produk</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($products as $product)
+                <div class="p-1">
+                    <x-product-card :product="$product" />
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-600">Alamat Toko</label>
-                    <input name="shop_address" class="w-full mt-1 border-gray-200 rounded-md p-2" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-600">Deskripsi Toko</label>
-                    <textarea name="shop_description" class="w-full mt-1 border-gray-200 rounded-md p-2"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-600">No. HP/WA</label>
-                    <input name="phone" class="w-full mt-1 border-gray-200 rounded-md p-2" required>
-                </div>
-                <div class="text-right">
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Kirim Permohonan</button>
-                </div>
-            </form>
+                @empty
+                <div class="text-sm text-gray-600">Tidak ada produk sesuai pencarian.</div>
+                @endforelse
+            </div>
+
+            <div class="mt-6">
+                {{ $products->links() }}
+            </div>
         </div>
     </main>
 </x-app-layout>

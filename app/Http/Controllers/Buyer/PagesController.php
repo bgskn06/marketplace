@@ -7,11 +7,31 @@ use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
-    public function orders()
+    public function orders(Request $request)
     {
         $user = auth()->user();
-        $orders = $user ? $user->orders()->with(['orderItems.product'])->latest()->get() : collect();
-        return view('buyer.orders', compact('orders'));
+        if (! $user) {
+            return view('buyer.orders', ['orders' => collect(), 'counts' => [], 'status' => null]);
+        }
+
+        // base query
+        $ordersQuery = $user->orders()->with(['orderItems.product']);
+
+        // counts per status for badges
+        $counts = $user->orders()->select('status', \Illuminate\Support\Facades\DB::raw('count(*) as c'))
+            ->groupBy('status')
+            ->pluck('c', 'status')
+            ->toArray();
+
+        // filter by status via query param ?status=2
+        $status = $request->query('status');
+        if ($status !== null && $status !== '') {
+            $ordersQuery->where('status', $status);
+        }
+
+        $orders = $ordersQuery->latest()->get();
+
+        return view('buyer.orders', compact('orders', 'counts', 'status'));
     }
     public function messages()
     {

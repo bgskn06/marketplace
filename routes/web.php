@@ -105,12 +105,16 @@ Route::middleware(['auth', 'role:seller'])
             return view('seller.order.index');
         })->name('orders');
 
+        // Seller actions for shipments (mark items of their shop as shipped)
+        Route::post('/orders/{order}/confirm-ship', [App\Http\Controllers\Seller\OrderController::class, 'confirmShip'])->name('seller.orders.confirmShip');
+
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
         Route::get('/chat/{user}', Chat::class)->name('chat');
     });
 
 Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/buyer/dashboard', [App\Http\Controllers\Buyer\DashboardController::class, 'index'])->name('buyer.dashboard');
+    Route::get('/buyer/search', [App\Http\Controllers\Buyer\DashboardController::class, 'search'])->name('buyer.search');
 
     Route::get('/buyer/orders', [App\Http\Controllers\Buyer\PagesController::class, 'orders'])->name('buyer.orders');
     Route::get('/buyer/messages', [App\Http\Controllers\Buyer\PagesController::class, 'messages'])->name('buyer.messages');

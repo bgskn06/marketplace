@@ -13,6 +13,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        // Keep existing behavior for dashboard (full view)
         $query = Product::query();
         if ($request->filled('q')) {
             $q = $request->input('q');
@@ -77,5 +78,45 @@ class DashboardController extends Controller
         ];
 
         return view('buyer.dashboard', compact('summary', 'products', 'stats', 'categories', 'cartSummary', 'recentOrders', 'recentMessages', 'recommendedSellers'));
+    }
+
+    public function search(Request $request)
+    {
+        $query = Product::query();
+        $q = $request->input('q');
+        if ($q) {
+            $query->where('name', 'like', "%{$q}%")->orWhere('description', 'like', "%{$q}%");
+        }
+        if ($request->filled('category')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->input('category'));
+            });
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', (float) $request->input('min_price'));
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', (float) $request->input('max_price'));
+        }
+        if ($request->filled('sort')) {
+            if ($request->input('sort') === 'price_asc') {
+                $query->orderBy('price', 'asc');
+            } elseif ($request->input('sort') === 'price_desc') {
+                $query->orderBy('price', 'desc');
+            }
+        }
+
+        $products = $query->with(['mainPhoto', 'photos'])->latest()->paginate(12)->withQueryString();
+
+        $categories = \App\Models\Category::orderBy('name')->get();
+
+        $cartSummary = [
+            'count' => Auth::check() ? Auth::user()->cartItems()->count() : 0,
+            'total' => Auth::check() ? Auth::user()->cartItems()->with('product')->get()->sum(function ($item) {
+                return $item->product ? $item->product->price * $item->quantity : 0;
+            }) : 0,
+        ];
+
+        return view('buyer.search', compact('products', 'q', 'categories', 'cartSummary'));
     }
 }

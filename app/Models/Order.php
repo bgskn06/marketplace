@@ -46,4 +46,33 @@ class Order extends Model
             default => 'Unknown',
         };
     }
+
+    public function getStatusLabelAttribute()
+    {
+        return $this->seller_status_label; // reuse same labels for general use
+    }
+
+    /**
+     * Check whether all order items are shipped.
+     */
+    public function allItemsShipped(): bool
+    {
+        return ! $this->orderItems()->whereNull('shipped_at')->exists();
+    }
+
+    /**
+     * Called after seller marks their items shipped. If all items shipped, update order status to SHIPPED.
+     */
+    public function updateStatusAfterItemsShipped(): self
+    {
+        if ($this->allItemsShipped()) {
+            $this->status = self::STATUS_SHIPPED;
+            $this->shipped_at = now();
+            $this->save();
+
+            // TODO: dispatch notification to buyer
+        }
+
+        return $this;
+    }
 }

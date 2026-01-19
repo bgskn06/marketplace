@@ -169,7 +169,8 @@ class CartController extends Controller
                 'user_id' => $user->id,
                 'order_number' => \Illuminate\Support\Str::upper(uniqid('ORD-')),
                 'total' => $totalWithShipping,
-                'status' => 'pending',
+                // Use numeric status constant (default Unpaid)
+                'status' => \App\Models\Order::STATUS_UNPAID,
             ];
 
             if (Schema::hasColumn('orders', 'recipient_name')) {
@@ -208,9 +209,16 @@ class CartController extends Controller
                 $sellerUser = optional(optional($p)->shop)->user;
                 if ($sellerUser) {
                     $sellerGroups[$sellerUser->id]['user'] = $sellerUser;
-                    $sellerGroups[$sellerUser->id]['items'][] = $item;
+                    // store a simple snapshot of the purchased item for notification purposes
+                    $sellerGroups[$sellerUser->id]['items'][] = [
+                        'product_id' => $p->id ?? null,
+                        'name' => $p->name ?? null,
+                        'quantity' => $item->quantity,
+                        'price' => $p->price ?? $p->harga ?? 0,
+                    ];
                 }
 
+                // remove cart item after snapshotting
                 $item->delete();
             }
 
