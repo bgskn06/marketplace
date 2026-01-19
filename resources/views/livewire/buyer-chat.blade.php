@@ -17,13 +17,11 @@
 
                     <div class="d-flex w-100 justify-content-between align-items-center">
 
-                        {{-- Nama User & Badge Container --}}
                         <div class="d-flex align-items-center">
                             <h6 class="mb-1 {{ $isActive ? 'text-white' : 'text-dark' }} font-weight-bold">
                                 {{ $otherUser->name }}
                             </h6>
 
-                            {{-- === BADGE UNREAD === --}}
                             @if ($conv->unread_messages_count > 0)
                             <span class="ml-2 badge badge-error text-white badge-sm">
                                 {{ $conv->unread_messages_count }}

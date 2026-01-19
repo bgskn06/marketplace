@@ -43,8 +43,10 @@
                         </div>
 
                         <div class="mt-6">
-                            <button id="place-order" type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Place Order</button>
-                            <a href="{{ route('buyer.cart') }}" class="ml-3 text-sm text-gray-600">Kembali ke Keranjang</a>
+                            <button id="place-order" type="button" class="btn btn-success w-100">Place Order</button>
+
+                            <a href="{{ route('buyer.cart') }}" class="btn btn-success w-100">Kembali ke Keranjang</a>
+
                         </div>
                     </form>
                 </section>

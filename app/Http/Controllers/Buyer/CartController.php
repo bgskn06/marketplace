@@ -141,8 +141,9 @@ class CartController extends Controller
         $request->validate([
             'recipient_name' => 'required|string|max:255',
             'address' => 'required|string',
+            'seller_id' => 'nullable|exists:users,id',
             'note' => 'nullable|string',
-            'shipping' => 'nullable|string'
+            'shipping' => 'nullable|string|in:standard,express',
         ]);
 
         // server-side shipping options (same as showCheckout)

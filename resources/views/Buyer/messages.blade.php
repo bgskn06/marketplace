@@ -17,7 +17,7 @@
             <h2 class="font-semibold text-pink-600 text-lg">Kotak Masuk</h2>
 
             <div class="mt-2">
-                @livewire('buyer-chat')
+                @livewire('seller-chat')
             </div>
         </div>
     </main>
