@@ -16,10 +16,8 @@
         <div class="bg-white/95 rounded-lg shadow p-4 border-l-4 border-pink-300">
             <h2 class="font-semibold text-pink-600 text-lg">Kotak Masuk</h2>
 
-            @livewire('seller-chat')
-
-            <div class="mt-4 text-right">
-                <a href="#" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md">Tulis pesan</a>
+            <div class="mt-2">
+                @livewire('buyer-chat')
             </div>
         </div>
     </main>
