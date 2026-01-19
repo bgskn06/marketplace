@@ -59,11 +59,36 @@ class SellerChat extends Component
     {
         $this->validate(['body' => 'required|string']);
 
-        Message::create([
-            'conversation_id' => $this->selectedConversation->id,
-            'user_id' => Auth::id(),
-            'body' => $this->body
-        ]);
+        try {
+            $message = Message::create([
+                'conversation_id' => $this->selectedConversation->id,
+                'user_id' => Auth::id(),
+                'body' => $this->body
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Fallback for DBs where `id` isn't AUTO_INCREMENT (temporary fix)
+            if (str_contains($e->getMessage(), "Field 'id' doesn't have a default value")) {
+                try {
+                    $nextId = \Illuminate\Support\Facades\DB::table('messages')->max('id');
+                    $nextId = $nextId ? $nextId + 1 : 1;
+
+                    \Illuminate\Support\Facades\DB::table('messages')->insert([
+                        'id' => $nextId,
+                        'conversation_id' => $this->selectedConversation->id,
+                        'user_id' => Auth::id(),
+                        'body' => $this->body,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    $message = Message::find($nextId);
+                } catch (\Exception $e2) {
+                    throw $e2; // bubble up if fallback fails
+                }
+            } else {
+                throw $e; // rethrow if different DB error
+            }
+        }
 
         $this->selectedConversation->update(['last_message_at' => now()]);
 

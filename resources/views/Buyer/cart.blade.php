@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <a id="checkout-btn" href="#" class="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-3 rounded-lg shadow hover:from-green-500 hover:to-green-700 transition">Checkout</a>
+                        <a id="checkout-btn" href="{{ route('buyer.cart.checkout.show') }}" class="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-3 rounded-lg shadow hover:from-green-500 hover:to-green-700 transition">Checkout</a>
                     </div>
 
                     <div class="mt-4 text-sm text-gray-500">Pengiriman dan pajak akan dihitung saat checkout.</div>
@@ -47,4 +47,130 @@
             </aside>
         </div>
     </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrf = '{{ csrf_token() }}';
+
+        function formatCurrency(value) {
+            return 'Rp' + Number(value).toLocaleString('id-ID');
+        }
+
+        function setCartCount(count) {
+            document.querySelectorAll('[x-text="cartCount"]').forEach(el => el.textContent = count);
+        }
+
+        function handleResponseErrors(err) {
+            if (err.json) {
+                return err.json().then(data => {
+                    alert(data.message || 'Terjadi kesalahan');
+                });
+            }
+            alert('Terjadi kesalahan jaringan');
+        }
+
+        function updateQuantity(itemId, newQty, container) {
+            fetch(`/buyer/cart/${itemId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ quantity: newQty })
+            })
+            .then(resp => {
+                if (!resp.ok) throw resp;
+                return resp.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // update quantity and totals in DOM
+                    container.querySelector('.qty-number').textContent = data.item_quantity;
+                    const itemTotalEl = container.querySelector('.item-total');
+                    itemTotalEl.textContent = formatCurrency(data.item_total);
+                    itemTotalEl.setAttribute('data-price', data.item_total / data.item_quantity || 0);
+
+                    const subtotalEl = document.getElementById('cart-subtotal');
+                    if (subtotalEl) subtotalEl.textContent = formatCurrency(data.cart_subtotal);
+
+                    setCartCount(data.cart_count);
+                } else {
+                    alert(data.message || 'Gagal memperbarui jumlah');
+                }
+            }).catch(handleResponseErrors);
+        }
+
+        function removeItem(itemId, container) {
+            fetch(`/buyer/cart/${itemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(resp => {
+                if (!resp.ok) throw resp;
+                return resp.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // remove element from DOM
+                    container.remove();
+                    const subtotalEl = document.getElementById('cart-subtotal');
+                    if (subtotalEl) subtotalEl.textContent = formatCurrency(data.cart_subtotal);
+                    setCartCount(data.cart_count);
+
+                    // if cart is empty, show message
+                    const list = document.querySelector('.mt-4.space-y-3');
+                    if (list && list.children.length === 0) {
+                        list.innerHTML = '<div class="text-sm text-gray-600">Keranjang kosong.</div>';
+                    }
+                } else {
+                    alert('Gagal menghapus item');
+                }
+            }).catch(handleResponseErrors);
+        }
+
+        // delegate events for performance and future dynamic items
+        document.addEventListener('click', function (e) {
+            const inc = e.target.closest('.qty-increase');
+            const dec = e.target.closest('.qty-decrease');
+            const rem = e.target.closest('.remove-from-cart');
+
+            if (inc) {
+                const itemId = inc.dataset.itemId;
+                const container = document.querySelector(`[data-item-id="${itemId}"]`);
+                if (!container) return;
+                const current = parseInt(container.querySelector('.qty-number').textContent || '0');
+                const newQty = current + 1;
+                updateQuantity(itemId, newQty, container);
+            }
+
+            if (dec) {
+                const itemId = dec.dataset.itemId;
+                const container = document.querySelector(`[data-item-id="${itemId}"]`);
+                if (!container) return;
+                const current = parseInt(container.querySelector('.qty-number').textContent || '0');
+                const newQty = current - 1;
+                if (newQty < 1) {
+                    if (confirm('Jumlah menjadi 0. Hapus item dari keranjang?')) {
+                        removeItem(itemId, container);
+                    }
+                    return;
+                }
+                updateQuantity(itemId, newQty, container);
+            }
+
+            if (rem) {
+                const itemId = rem.dataset.itemId;
+                const container = document.querySelector(`[data-item-id="${itemId}"]`);
+                if (!container) return;
+                if (confirm('Yakin ingin menghapus item ini dari keranjang?')) {
+                    removeItem(itemId, container);
+                }
+            }
+        });
+    });
+    </script>
 </x-app-layout>

@@ -134,8 +134,71 @@
 
                                 </div>
 
-                                <div class="mt-3 text-sm text-gray-500">Stok Tersedia:
-                                    <strong>{{ $product->stock }}</strong></div>
+                            {{-- Reviews & Rating --}}
+<div id="reviews" class="mt-6 bg-white rounded-lg shadow p-4">
+                                <h3 class="font-semibold text-gray-800 mb-3">Ulasan Pembeli</h3>
+
+                                <div class="mb-3">
+                                    <div class="text-sm text-yellow-500">{{ number_format($product->rating ?? 0, 1) }} ★</div>
+                                </div>
+
+                                @if(session('error'))
+                                    <div class="text-sm text-red-600 mb-2">{{ session('error') }}</div>
+                                @endif
+                                @if(session('success'))
+                                    <div class="text-sm text-green-600 mb-2">{{ session('success') }}</div>
+                                @endif
+
+                                @auth
+                                    @php
+                                        $canRate = auth()->user()->orders()
+                                            ->where(function($q){
+                                                $q->whereRaw("LOWER(`status`) = 'delivered'")->orWhereRaw("LOWER(`status`) = 'selesai'");
+                                            })
+                                            ->whereHas('orderItems', function($q) use ($product){
+                                                $q->where('product_id', $product->id);
+                                            })->exists();
+
+                                        $existingReview = $product->reviews()->where('user_id', auth()->id())->first();
+                                    @endphp
+
+                                    @if($canRate)
+                                        <form method="POST" action="{{ route('buyer.products.reviews.store', $product) }}" class="space-y-2">
+                                            @csrf
+                                            <div>
+                                                <label class="block text-sm text-gray-700">Nilai</label>
+                                                <select name="rating" class="border-gray-200 rounded-md p-2 text-sm">
+                                                    @for($i=5;$i>=1;$i--)
+                                                        <option value="{{ $i }}" {{ (old('rating') ?? $existingReview->rating ?? '') == $i ? 'selected' : '' }}>{{ $i }} ★</option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-700">Ulasan (opsional)</label>
+                                                <textarea name="comment" class="w-full border-gray-200 rounded-md p-2 text-sm" rows="3">{{ old('comment') ?? $existingReview->comment ?? '' }}</textarea>
+                                            </div>
+                                            <div>
+                                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md">Kirim Ulasan</button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <div class="text-sm text-gray-600">Anda dapat memberi rating setelah pesanan diterima.</div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-gray-600">Silakan <a href="{{ route('login') }}" class="text-indigo-600">login</a> untuk memberi rating.</div>
+                                @endauth
+
+                                <div class="mt-4 space-y-3">
+                                    @forelse($product->reviews()->with('user')->latest()->get() as $review)
+                                        <div class="border rounded p-3">
+                                            <div class="text-sm font-medium text-gray-800">{{ $review->user->name ?? 'User' }} • <span class="text-yellow-500">{{ $review->rating }} ★</span></div>
+                                            <div class="text-sm text-gray-600 mt-1">{{ $review->comment }}</div>
+                                            <div class="text-xs text-gray-400 mt-1">{{ optional($review->created_at)->format('Y-m-d') }}</div>
+                                        </div>
+                                    @empty
+                                        <div class="text-sm text-gray-600">Belum ada ulasan.</div>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -150,9 +213,12 @@
             <aside class="hidden lg:block">
                 <div class="bg-white rounded-lg shadow p-4">
                     <h4 class="font-semibold text-gray-800">Penjual</h4>
-                    <div class="text-sm text-gray-600 mt-2">
-                        {{ optional($product->shop)->name ?? 'Penjual Tidak Diketahui' }}</div>
-                    <a href="#" class="mt-3 inline-block text-indigo-600">Lihat Toko</a>
+                    <div class="text-sm text-gray-600 mt-2">{{ optional($product->shop)->name ?? 'Penjual Tidak Diketahui' }}</div>
+                    @if($product->shop)
+                        <a href="{{ route('shops.show', $product->shop) }}" class="mt-3 inline-block text-indigo-600">Lihat Toko</a>
+                    @else
+                        <span class="mt-3 inline-block text-gray-400">Lihat Toko</span>
+                    @endif
                 </div>
 
                 <div class="mt-4 bg-white rounded-lg shadow p-4">

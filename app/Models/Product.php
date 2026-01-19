@@ -40,4 +40,17 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\ProductReview::class);
+    }
+
+    public function recalcRating()
+    {
+        $avg = $this->reviews()->avg('rating') ?: 0;
+        $this->rating = round($avg, 1);
+        $this->save();
+        return $this->rating;
+    }
 }

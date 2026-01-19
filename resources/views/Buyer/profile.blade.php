@@ -48,6 +48,10 @@
                     <div class="sm:col-span-2 text-right">
                         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Simpan</button>
                     </div>
+
+                    <div class="sm:col-span-2 text-right">
+                        <a href="{{ route('seller.register') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md inline-block">Daftar Seller</a>
+                    </div>
                 </form>
             </div>
         @else

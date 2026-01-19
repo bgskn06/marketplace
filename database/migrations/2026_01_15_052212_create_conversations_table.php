@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('conversations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('sender_id')->constrained('users');
-            $table->foreignId('receiver_id')->constrained('users');
-            $table->timestamp('last_message_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('conversations')) {
+            Schema::create('conversations', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('sender_id')->constrained('users');
+                $table->foreignId('receiver_id')->constrained('users');
+                $table->timestamp('last_message_at')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

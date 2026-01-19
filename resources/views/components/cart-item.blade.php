@@ -2,7 +2,7 @@
 
 <div data-item-id="{{ $item->id }}" class="reveal p-3 rounded-lg bg-white shadow-sm flex items-center gap-4 justify-between">
     <div class="flex items-center gap-4">
-        <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+        <div class="w-full h-44 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
             @php
                 $photoPath = $item->product->mainPhoto?->path
                     ?? $item->product->photos->first()?->path
@@ -36,7 +36,7 @@
         </div>
 
         <div class="text-right">
-            <div class="font-semibold text-indigo-700 item-total" data-price="{{ optional($item->product)->price ?? optional($item->product)->harga ?? 0 }}">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>"
+            <div class="font-semibold text-indigo-700 item-total" data-price="{{ optional($item->product)->price ?? optional($item->product)->harga ?? 0 }}">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>
             <button data-item-id="{{ $item->id }}" class="text-sm text-red-600 remove-from-cart">Hapus</button>
         </div>
     </div>

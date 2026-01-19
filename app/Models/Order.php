@@ -20,4 +20,9 @@ class Order extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(\App\Models\OrderItem::class);
+    }
 }
