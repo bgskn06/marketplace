@@ -158,7 +158,7 @@
                                 </div>
                             </form>
                         @else
-                            <div class="text-sm text-gray-600">Anda dapat memberi ulasan setelah menerima pesanan dari toko ini.</div>
+                            <div class="text-sm text-gray-600">Anda dapat memberi ulasan untuk toko ini sekarang tanpa harus menunggu pesanan selesai.</div>
                         @endif
                     @else
                         <div class="text-sm text-gray-600">Silakan <a href="{{ route('login') }}" class="text-indigo-600">login</a> untuk memberi ulasan.</div>
