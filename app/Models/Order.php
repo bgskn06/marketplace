@@ -13,8 +13,16 @@ class Order extends Model
         'user_id',
         'order_number',
         'total',
+        'tracking_number',
         'status',
     ];
+
+    const STATUS_CANCELLED = 0;
+    const STATUS_UNPAID = 1;
+    const STATUS_PAID = 2;      // Pesanan Masuk (Siap Dikemas)
+    const STATUS_SHIPPED = 3;   // Sedang Dikirim
+    const STATUS_COMPLETED = 4;
+    const STATUS_REFUNDED = 5;
 
     public function user()
     {
@@ -24,5 +32,18 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(\App\Models\OrderItem::class);
+    }
+
+    public function getSellerStatusLabelAttribute()
+    {
+        return match ($this->status) {
+            0 => 'Cancelled',
+            1 => 'Unpaid',
+            2 => 'Paid',
+            3 => 'Shipped',
+            4 => 'Completed',
+            5 => 'Refunded',
+            default => 'Unknown',
+        };
     }
 }
