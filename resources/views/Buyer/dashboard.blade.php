@@ -24,86 +24,78 @@
     </style>
 
     <header class="border-bottom bg-white">
-    <div class="container-fluid container-xxl">
-        <div class="d-flex align-items-center justify-content-between" style="height:64px">
+        <div class="container-fluid container-xxl">
+            <div class="d-flex align-items-center justify-content-between" style="height:64px">
 
-        <!-- LEFT -->
-        <div class="d-flex align-items-center gap-4 flex-grow-1">
+                <!-- LEFT -->
+                <div class="d-flex align-items-center gap-4 flex-grow-1">
 
-            <!-- LOGO -->
-            <a href="#" class="d-flex align-items-center gap-2 text-decoration-none">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" class="text-success">
-                <path d="M9 16v-8l3 5l3 -5v8"></path>
-                <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
+                    <!-- LOGO -->
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+                            <path d="M9 16v-8l3 5l3 -5v8"></path>
+                            <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
                 c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
                 a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
                 a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
                 c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
                 a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
-            </svg>
-            <span class="fs-5 fw-medium text-dark">
-                Marketplace <span class="fw-bold">UDB</span>
-            </span>
-            </a>
+                        </svg>
+                        <span class="fs-5 fw-medium text-dark">
+                            Marketplace <span class="fw-bold">UDB</span>
+                        </span>
+                    </a>
 
-            <!-- SEARCH -->
-            <form method="GET" action="{{ route('buyer.search') }}" class="d-none d-sm-block position-relative">
+                    <!-- SEARCH -->
+                    <form method="GET" action="{{ route('buyer.search') }}" class="d-none d-sm-block position-relative">
 
-                <div class="flex-1 relative">
-                    <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
+                        <div class="flex-1 relative">
+                            <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
+                        </div>
+                        <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-1">
+                            <i class="bi bi-search text-muted"></i>
+                        </button>
+                    </form>
                 </div>
-                <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-1">
-                    <i class="bi bi-search text-muted"></i>
-                </button>
-            </form>
+
+                <!-- RIGHT -->
+                <div class="d-flex align-items-center gap-3">
+
+                    <!-- NAV -->
+                    <nav class="d-none d-md-block">
+                        <ul class="nav align-items-center gap-2">
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
+
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- DIVIDER -->
+                    <div class="vr d-none d-md-block"></div>
+
+                    <!-- AVATAR -->
+                    <a href="{{ route('buyer.profile') }}">
+                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                    </a>
+
+                    <!-- MOBILE MENU -->
+                    <button class="btn btn-light d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+            </div>
         </div>
-
-        <!-- RIGHT -->
-        <div class="d-flex align-items-center gap-3">
-
-            <!-- NAV -->
-            <nav class="d-none d-md-block">
-            <ul class="nav align-items-center gap-2">
-                <li class="nav-item">
-                    <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
-
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('buyer.orders') }}" class="nav-link text-muted">Orders</a>
-                </li>
-                <li class="nav-item">
-                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
-                </li>
-                <li class="nav-item">
-                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
-                </li>
-            </ul>
-            </nav>
-
-            <!-- DIVIDER -->
-            <div class="vr d-none d-md-block"></div>
-
-            <!-- AVATAR -->
-            <a href="{{ route('buyer.profile') }}">
-            <img
-                src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40"
-                class="rounded-circle object-fit-cover"
-                width="40"
-                height="40"
-                alt="Profile"
-            >
-            </a>
-
-            <!-- MOBILE MENU -->
-            <button class="btn btn-light d-md-none">
-            <i class="bi bi-list"></i>
-            </button>
-        </div>
-
-        </div>
-    </div>
     </header>
 
     <div class="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-pink-50" x-data="{ filtersOpen:false, cartCount: {{ $summary['cart_count'] ?? 0 }} }">
@@ -138,7 +130,6 @@
 
                     <!-- Slides -->
                     <div class="carousel-inner">
-
                         <div class="carousel-item active">
                             <div class="carousel-banner" style="background-image: url('{{ asset('images/carousel/slide1.png') }}');">
                             </div>
@@ -280,7 +271,6 @@
                         <div class="text-sm text-gray-600">Tidak ada produk.</div>
                         @endforelse
                     </div>
-
                     <div class="mt-6">
                         {{ $products->links() }}
                     </div>
@@ -293,37 +283,46 @@
                             @forelse($recentOrders as $order)
                             <li class="flex items-center justify-between">
                                 <div>
-                                    <div class="font-medium text-gray-800">#{{ $order->invoice_number }}</div>
-                                    <div class="text-xs">Dikirim ke: {{ $order->shipping_address }}</div>
+                                    <div class="font-medium text-gray-800">{{ $order->order_number ?? ('#INV-' . $order->id) }}</div>
+                                    <div class="text-xs">Dikirim ke: {{ $order->shipping_address ?? '—' }}</div>
+                                    <div class="text-xs text-gray-500">{{ $order->created_at->format('d M Y H:i') }}</div>
+                                    <div class="text-xs text-gray-700">{{ $order->orderItems->count() }} item • Total: <strong>Rp{{ number_format($order->total ?? 0,0,',','.') }}</strong></div>
                                 </div>
-                                <div class="font-semibold {{ $order->status == 'Selesai' ? 'text-green-600' : ($order->status == 'Sedang dikirim' ? 'text-yellow-600' : 'text-gray-600') }}">{{ $order->status }}</div>
+                                <div class="font-semibold {{ $order->status_label == 'Completed' ? 'text-green-600' : ($order->status_label == 'Shipped' ? 'text-yellow-600' : 'text-gray-600') }}">{{ $order->status_label }}</div>
                             </li>
                             @empty
                             <li>Tidak ada pesanan terbaru.</li>
                             @endforelse
                         </ul>
-                        <a href="{{ route('buyer.orders') }}" class="mt-3 block text-center text-indigo-600">Lihat semua pesanan</a>
+                        <a href="{{ $buyerOrdersUrl }}" class="mt-3 block text-center text-indigo-600">Lihat semua pesanan</a>
                     </div>
 
                     <div class="mt-4 bg-white/95 rounded-lg shadow p-4 border-l-4 border-pink-300">
                         <h3 class="font-semibold text-pink-600 mb-3">Pesan</h3>
                         @if(count($recentMessages) > 0)
-                        @foreach($recentMessages as $msg)
-                        <div class="text-sm text-gray-600 mb-1">
-                            <span class="font-medium text-gray-800">{{ $msg->sender_name }}:</span> {{ \Illuminate\Support\Str::limit($msg->content, 30) }}
+                        @foreach($recentMessages as $conv)
+                        <div class="text-sm text-gray-600 mb-2">
+                            <div class="font-medium text-gray-800">{{ $conv->receiver->name ?? $conv->sender->name }}</div>
+                            <div class="text-xs text-gray-600">{{ \Illuminate\Support\Str::limit($conv->latestMessage->body ?? '-', 50) }}</div>
+                            <div class="text-xs text-gray-400">{{ optional(optional($conv->latestMessage)->created_at)->diffForHumans() }}</div>
                         </div>
                         @endforeach
                         @else
                         <div class="text-sm text-gray-600">Tidak ada pesan baru.</div>
                         @endif
-                        <a href="{{ route('buyer.messages') }}" class="mt-3 block text-center text-pink-600">Buka pesan</a>
+                        <a href="{{ route('buyer.chat.index') }}" class="mt-3 block text-center text-pink-600">Buka pesan</a>
                     </div>
 
                     <div class="mt-4 bg-white/95 rounded-lg shadow p-4 border-l-4 border-yellow-300">
                         <h3 class="font-semibold text-yellow-700 mb-3">Penjual Direkomendasikan</h3>
                         <ul class="space-y-2 text-sm text-gray-600">
                             @forelse($recommendedSellers as $seller)
-                            <li>{{ $seller->name }} • ⭐ {{ number_format($seller->rating, 1) }}</li>
+                            <li class="flex items-center justify-between">
+                                <div>
+                                    <a href="{{ route('shops.show', $seller) }}" class="font-medium text-gray-800">{{ $seller->name }}</a>
+                                    <div class="text-xs text-gray-600">⭐ {{ number_format($seller->rating ?? 0, 1) }} • {{ $seller->followers_count ?? $seller->followers()->count() }} pengikut</div>
+                                </div>
+                            </li>
                             @empty
                             <li>Tidak ada penjual direkomendasikan.</li>
                             @endforelse

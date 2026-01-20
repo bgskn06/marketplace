@@ -115,7 +115,13 @@ class CartController extends Controller
             'express' => ['Express (1-2 hari)', 25000],
         ];
 
-        return view('Buyer.checkout', compact('items', 'subtotal', 'shippingOptions'));
+        // Add payment options (COD and Bank Transfer)
+        $paymentOptions = [
+            'cod' => 'COD (Bayar di tempat)',
+            'bank_transfer' => 'Transfer Bank (Bank Transfer)'
+        ];
+
+        return view('Buyer.checkout', compact('items', 'subtotal', 'shippingOptions', 'paymentOptions'));
     }
 
     public function checkout(Request $request)
@@ -137,7 +143,7 @@ class CartController extends Controller
             }
         }
 
-        // validate checkout form
+        // validate checkout form (payment method is hardcoded to 'cod')
         $request->validate([
             'recipient_name' => 'required|string|max:255',
             'address' => 'required|string',
@@ -187,6 +193,20 @@ class CartController extends Controller
             }
             if (Schema::hasColumn('orders', 'note')) {
                 $orderData['note'] = $request->input('note');
+            }
+
+            // Payment method comes from request (default to 'cod')
+            $paymentMethod = $request->input('payment_method', 'cod');
+            if (! in_array($paymentMethod, ['cod', 'bank_transfer'])) {
+                $paymentMethod = 'cod';
+            }
+            $orderData['payment_method'] = $paymentMethod;
+
+            // If bank_transfer, generate a payment code and expiry (24 hours)
+            if ($paymentMethod === 'bank_transfer') {
+                $code = 'TRF-' . strtoupper(\Illuminate\Support\Str::random(8));
+                $orderData['payment_code'] = $code;
+                $orderData['payment_expires_at'] = now()->addDay();
             }
 
             $order = \App\Models\Order::create($orderData);
@@ -247,10 +267,17 @@ class CartController extends Controller
             return redirect()->back()->with('success', 'Checkout gagal');
         }
 
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'order_id' => $order->id, 'redirect' => route('buyer.orders')]);
+        // Determine redirect URL: payment page for bank_transfer, otherwise orders list
+        $ordersUrl = url('/buyer/orders');
+        $redirectUrl = $ordersUrl;
+        if (isset($order) && $order->payment_method === 'bank_transfer') {
+            $redirectUrl = route('buyer.orders.payment', $order);
         }
 
-        return redirect()->route('buyer.orders')->with('success', 'Checkout berhasil. Order #' . $order->order_number);
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'order_id' => $order->id, 'redirect' => $redirectUrl]);
+        }
+
+        return redirect($redirectUrl)->with('success', 'Checkout berhasil. Order #' . $order->order_number);
     }
 }

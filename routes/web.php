@@ -117,6 +117,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/buyer/search', [App\Http\Controllers\Buyer\DashboardController::class, 'search'])->name('buyer.search');
 
     Route::get('/buyer/orders', [App\Http\Controllers\Buyer\PagesController::class, 'orders'])->name('buyer.orders');
+    Route::get('/buyer/orders/{order}/payment', [App\Http\Controllers\Buyer\PagesController::class, 'orderPayment'])->name('buyer.orders.payment');
     Route::get('/buyer/messages', [App\Http\Controllers\Buyer\PagesController::class, 'messages'])->name('buyer.messages');
     Route::get('/buyer/chat', [App\Http\Controllers\Buyer\ChatController::class, 'index'])->name('buyer.chat.index');
     Route::get('/buyer/chat/start/{user}', [App\Http\Controllers\Buyer\ChatController::class, 'start'])->name('buyer.chat.start');

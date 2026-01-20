@@ -51,20 +51,18 @@ class DashboardController extends Controller
             }) : 0,
         ];
 
-        // Sidebar: Pesanan Terbaru
-        $recentOrders = Auth::check() ? Auth::user()->orders()->latest()->take(2)->get() : collect();
+        // Sidebar: Pesanan Terbaru — tampilkan semua pesanan buyer
+        $recentOrders = Auth::check() ? Auth::user()->orders()->with('orderItems.product')->latest()->get() : collect();
 
-        // Sidebar: Pesan Terbaru
-        $recentMessages = Auth::check() ? \App\Models\Message::where('user_id', Auth::id())->latest()->take(2)->get() : collect();
+        // Sidebar: Pesan Terbaru — ambil semua percakapan user dengan pesan terakhir
+        $recentMessages = Auth::check() ? \App\Models\Conversation::where('sender_id', Auth::id())
+            ->orWhere('receiver_id', Auth::id())
+            ->with(['latestMessage.user', 'sender', 'receiver'])
+            ->orderByDesc('last_message_at')
+            ->get() : collect();
 
-        // Sidebar: Penjual Direkomendasikan
-        $recommendedSellers = \App\Models\Shop::with(['products' => function ($q) {
-            $q->select('shop_id', 'rating');
-        }])->get()->map(function ($shop) {
-            $avgRating = $shop->products->count() > 0 ? $shop->products->avg('rating') : null;
-            $shop->rating = $avgRating ?? 0;
-            return $shop;
-        })->sortByDesc('rating')->take(3);
+        // Sidebar: Penjual Direkomendasikan — tampilkan seluruh penjual urut rating tertinggi
+        $recommendedSellers = \App\Models\Shop::withCount('followers')->orderByDesc('rating')->get();
 
         $summary = [
             'cart_count' => $cartSummary['count'],

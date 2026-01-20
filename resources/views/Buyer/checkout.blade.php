@@ -34,7 +34,7 @@
 
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.orders') }}" class="nav-link text-muted">Orders</a>
+                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
@@ -88,10 +88,20 @@
                         <div class="mt-4">
                             <h3 class="font-medium">Opsi Pengiriman</h3>
                             @foreach($shippingOptions as $key => $opt)
-                                <label class="flex items-center gap-3 mt-2">
-                                    <input type="radio" name="shipping" value="{{ $key }}" data-price="{{ $opt[1] }}" {{ $loop->first ? 'checked' : '' }}>
-                                    <span class="text-sm">{{ $opt[0] }} — <strong>Rp{{ number_format($opt[1],0,',','.') }}</strong></span>
-                                </label>
+                            <label class="flex items-center gap-3 mt-2">
+                                <input type="radio" name="shipping" value="{{ $key }}" data-price="{{ $opt[1] }}" {{ $loop->first ? 'checked' : '' }}>
+                                <span class="text-sm">{{ $opt[0] }} — <strong>Rp{{ number_format($opt[1],0,',','.') }}</strong></span>
+                            </label>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="font-medium">Metode Pembayaran</h3>
+                            @foreach($paymentOptions as $key => $label)
+                            <label class="flex items-center gap-3 mt-2">
+                                <input type="radio" name="payment_method" value="{{ $key }}" {{ $loop->first ? 'checked' : '' }}>
+                                <span class="text-sm">{{ $label }}</span>
+                            </label>
                             @endforeach
                         </div>
 
@@ -105,10 +115,10 @@
                     <h3 class="font-semibold">Ringkasan Pesanan</h3>
                     <div class="mt-4 space-y-3">
                         @foreach($items as $item)
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm text-gray-700">{{ optional($item->product)->name ?? 'Produk' }} x {{ $item->quantity }}</div>
-                                <div class="text-sm text-gray-700">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>
-                            </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-700">{{ optional($item->product)->name ?? 'Produk' }} x {{ $item->quantity }}</div>
+                            <div class="text-sm text-gray-700">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>
+                        </div>
                         @endforeach
                     </div>
 
@@ -124,6 +134,7 @@
                         <div id="summary-shipping">Rp{{ number_format(array_values($shippingOptions)[0][1],0,',','.') }}</div>
                     </div>
 
+
                     <div class="flex items-center justify-between text-lg font-semibold text-indigo-700 mt-4">
                         <div>Total</div>
                         <div id="summary-total">Rp{{ number_format($subtotal + array_values($shippingOptions)[0][1],0,',','.') }}</div>
@@ -138,71 +149,90 @@
     </main>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('checkout-form');
-        const placeBtn = document.getElementById('place-order');
-        const csrf = '{{ csrf_token() }}';
-        const subtotal = Number({{ $subtotal }});
-
-        function formatCurrency(value) {
-            return 'Rp' + Number(value).toLocaleString('id-ID');
-        }
-
-        function recalc() {
-            const selected = form.querySelector('input[name="shipping"]:checked');
-            const ship = Number(selected?.dataset.price || 0);
-            document.getElementById('summary-shipping').textContent = formatCurrency(ship);
-            document.getElementById('summary-total').textContent = formatCurrency(subtotal + ship);
-        }
-
-        form.addEventListener('change', function (e) {
-            if (e.target.name === 'shipping') recalc();
-        });
-
-        function doPlaceOrder(btn) {
-            const button = btn || placeBtn;
-            button.disabled = true;
-            const originalText = button.textContent;
-            button.textContent = 'Processing...';
-
-            const formData = new FormData(form);
-            // include shipping price for convenience
-            const shippingInput = form.querySelector('input[name="shipping"]:checked');
-            formData.append('shipping_price', shippingInput?.dataset.price || 0);
-
-            fetch("{{ route('buyer.cart.checkout') }}", {
-                method: 'POST',
-                headers: {'X-CSRF-TOKEN': csrf, 'Accept': 'application/json'},
-                body: formData
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect || '{{ route('buyer.orders') }}';
-                } else {
-                    alert(data.message || 'Checkout gagal');
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('checkout-form');
+            const placeBtn = document.getElementById('place-order') || document.getElementById('place-order-summary');
+            const csrf = '{{ csrf_token() }}';
+            const subtotal = Number({
+                {
+                    $subtotal
                 }
-            })
-            .catch(() => alert('Terjadi kesalahan'))
-            .finally(() => {
-                button.disabled = false;
-                button.textContent = originalText || 'Place Order';
             });
-        }
 
-        placeBtn.addEventListener('click', function () {
-            doPlaceOrder(placeBtn);
+            function formatCurrency(value) {
+                return 'Rp' + Number(value).toLocaleString('id-ID');
+            }
+
+            function recalc() {
+                const selected = form.querySelector('input[name="shipping"]:checked');
+                const ship = Number((selected && selected.dataset ? selected.dataset.price : 0) || 0);
+                document.getElementById('summary-shipping').textContent = formatCurrency(ship);
+                document.getElementById('summary-total').textContent = formatCurrency(subtotal + ship);
+            }
+
+            form.addEventListener('change', function(e) {
+                if (e.target.name === 'shipping') recalc();
+            });
+
+            function doPlaceOrder(btn) {
+                const button = btn || placeBtn;
+                if (!button) {
+                    alert('Tombol checkout tidak ditemukan');
+                    return;
+                }
+                button.disabled = true;
+                const originalText = button.textContent;
+                button.textContent = 'Processing...';
+
+                const formData = new FormData(form);
+                // include shipping price for convenience
+                const shippingInput = form.querySelector('input[name="shipping"]:checked');
+                formData.append('shipping_price', (shippingInput && shippingInput.dataset ? shippingInput.dataset.price : 0) || 0);
+
+                fetch("{{ route('buyer.cart.checkout') }}", {
+                        method: 'POST'
+                        , headers: {
+                            'X-CSRF-TOKEN': csrf
+                            , 'Accept': 'application/json'
+                        }
+                        , body: formData
+                    })
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data.success) {
+                            // use redirect provided by server, otherwise fallback to shared URL
+                            window.location.href = data.redirect || '{{ $buyerOrdersUrl }}';
+                        } else {
+                            alert(data.message || 'Checkout gagal');
+                        }
+                    })
+                    .catch(() => alert('Terjadi kesalahan'))
+                    .finally(() => {
+                        button.disabled = false;
+                        button.textContent = originalText || 'Place Order';
+                    });
+            }
+
+            const summaryBtn = document.getElementById('place-order-summary');
+            if (summaryBtn) {
+                summaryBtn.addEventListener('click', function() {
+                    doPlaceOrder(summaryBtn);
+                    window.scrollTo({
+                        top: 0
+                        , behavior: 'smooth'
+                    });
+                });
+            }
+
+            const mainBtn = document.getElementById('place-order');
+            if (mainBtn) {
+                mainBtn.addEventListener('click', function() {
+                    doPlaceOrder(mainBtn);
+                });
+            }
+
+            recalc();
         });
 
-        const summaryBtn = document.getElementById('place-order-summary');
-        if (summaryBtn) {
-            summaryBtn.addEventListener('click', function () {
-                doPlaceOrder(summaryBtn);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        recalc();
-    });
     </script>
 </x-app-layout>

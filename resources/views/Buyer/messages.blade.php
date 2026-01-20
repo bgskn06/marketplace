@@ -34,7 +34,7 @@
 
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.orders') }}" class="nav-link text-muted">Orders</a>
+                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>

@@ -47,6 +47,21 @@ class PagesController extends Controller
         return view('buyer.cart', compact('cart'));
     }
 
+    public function orderPayment(\Illuminate\Http\Request $request, \App\Models\Order $order)
+    {
+        $user = auth()->user();
+        if (! $user || $order->user_id !== $user->id) {
+            abort(404);
+        }
+
+        // Only show payment page for unpaid orders
+        if ($order->status !== \App\Models\Order::STATUS_UNPAID) {
+            return redirect()->route('buyer.orders');
+        }
+
+        return view('Buyer.orders.payment', compact('order'));
+    }
+
     public function profile()
     {
         $user = auth()->user();

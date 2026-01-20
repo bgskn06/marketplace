@@ -42,6 +42,12 @@
                 @else
                 <span class="text-xs text-gray-500">Belum bisa memberi ulasan</span>
                 @endif
+
+                @if($order->payment_method === 'bank_transfer' && $order->status === \App\Models\Order::STATUS_UNPAID)
+                <div class="mt-2">
+                    <a href="{{ route('buyer.orders.payment', $order) }}" class="px-3 py-2 bg-yellow-500 text-white rounded-md text-sm">Lihat Pembayaran</a>
+                </div>
+                @endif
             </div>
         </div>
         @endforeach

@@ -34,7 +34,7 @@
 
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.orders') }}" class="nav-link text-muted">Orders</a>
+                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
@@ -71,17 +71,17 @@
             {{-- Status Tabs --}}
             <div class="mt-3 mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('buyer.orders') }}" class="px-3 py-1 rounded-md text-sm {{ is_null($status) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Semua <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ array_sum($counts ?? []) }}</span></a>
+                    <a href="{{ $buyerOrdersUrl }}" class="px-3 py-1 rounded-md text-sm {{ is_null($status) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Semua <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ array_sum($counts ?? []) }}</span></a>
 
-                    <a href="{{ route('buyer.orders', ['status' => \App\Models\Order::STATUS_UNPAID]) }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_UNPAID) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Belum Bayar <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_UNPAID] ?? 0 }}</span></a>
+                    <a href="{{ $buyerOrdersUrl . '?status=' . \App\Models\Order::STATUS_UNPAID }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_UNPAID) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Belum Bayar <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_UNPAID] ?? 0 }}</span></a>
 
-                    <a href="{{ route('buyer.orders', ['status' => \App\Models\Order::STATUS_PAID]) }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_PAID) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Perlu Dikirim <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_PAID] ?? 0 }}</span></a>
+                    <a href="{{ $buyerOrdersUrl . '?status=' . \App\Models\Order::STATUS_PAID }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_PAID) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Perlu Dikirim <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_PAID] ?? 0 }}</span></a>
 
-                    <a href="{{ route('buyer.orders', ['status' => \App\Models\Order::STATUS_SHIPPED]) }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_SHIPPED) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Dikirim <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_SHIPPED] ?? 0 }}</span></a>
+                    <a href="{{ $buyerOrdersUrl . '?status=' . \App\Models\Order::STATUS_SHIPPED }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_SHIPPED) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Dikirim <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_SHIPPED] ?? 0 }}</span></a>
 
-                    <a href="{{ route('buyer.orders', ['status' => \App\Models\Order::STATUS_COMPLETED]) }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_COMPLETED) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Selesai <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_COMPLETED] ?? 0 }}</span></a>
+                    <a href="{{ $buyerOrdersUrl . '?status=' . \App\Models\Order::STATUS_COMPLETED }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === (string)\App\Models\Order::STATUS_COMPLETED) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Selesai <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ $counts[\App\Models\Order::STATUS_COMPLETED] ?? 0 }}</span></a>
 
-                    <a href="{{ route('buyer.orders', ['status' => 0]) }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === '0') ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Batal / Refund <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ ($counts[0] ?? 0) + ($counts[5] ?? 0) }}</span></a>
+                    <a href="{{ $buyerOrdersUrl . '?status=0' }}" class="px-3 py-1 rounded-md text-sm {{ ((string)$status === '0') ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700' }}">Batal / Refund <span class="ml-2 inline-block bg-white text-xs px-2 rounded-full text-indigo-700">{{ ($counts[0] ?? 0) + ($counts[5] ?? 0) }}</span></a>
                 </div>
 
                 <div class="text-sm text-gray-500">Menampilkan <strong>{{ $orders->count() }}</strong> pesanan</div>

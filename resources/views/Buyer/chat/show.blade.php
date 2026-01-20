@@ -4,7 +4,7 @@
             <h1 class="text-2xl font-semibold text-gray-900">Chat</h1>
             <nav class="flex items-center gap-4 text-sm">
                 <a href="{{ route('buyer.dashboard') }}" class="text-gray-700 hover:text-indigo-700">Home</a>
-                <a href="{{ route('buyer.orders') }}" class="text-gray-700 hover:text-indigo-700">Orders</a>
+                <a href="{{ $buyerOrdersUrl }}" class="text-gray-700 hover:text-indigo-700">Orders</a>
                 <a href="{{ route('buyer.messages') }}" class="text-gray-700 hover:text-indigo-700">Messages</a>
                 <a href="{{ route('buyer.cart') }}" class="text-gray-700 hover:text-indigo-700">Cart</a>
                 <a href="{{ route('buyer.profile') }}" class="text-gray-700 hover:text-indigo-700">Profile</a>
