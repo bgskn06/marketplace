@@ -149,90 +149,88 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('checkout-form');
-            const placeBtn = document.getElementById('place-order') || document.getElementById('place-order-summary');
-            const csrf = '{{ csrf_token() }}';
-            const subtotal = Number({
-                {
-                    $subtotal
-                }
-            });
+    document.addEventListener('DOMContentLoaded', function () {
 
-            function formatCurrency(value) {
-                return 'Rp' + Number(value).toLocaleString('id-ID');
+    const form = document.getElementById('checkout-form');
+    const checkoutBtn = document.getElementById('place-order-summary');
+    const csrf = '{{ csrf_token() }}';
+
+    const subtotal = Number(@json($subtotal));
+
+    function formatCurrency(value) {
+        return 'Rp' + Number(value).toLocaleString('id-ID');
+    }
+
+    function getShippingPrice() {
+        const selected = form.querySelector('input[name="shipping"]:checked');
+        return selected ? Number(selected.dataset.price) : 0;
+    }
+
+    function recalcSummary() {
+        const shipping = getShippingPrice();
+        document.getElementById('summary-shipping').textContent = formatCurrency(shipping);
+        document.getElementById('summary-total').textContent = formatCurrency(subtotal + shipping);
+    }
+
+    // Update total when shipping changed
+    form.addEventListener('change', function (e) {
+        if (e.target.name === 'shipping') {
+            recalcSummary();
+        }
+    });
+
+    checkoutBtn.addEventListener('click', function () {
+
+        // BASIC VALIDATION
+        if (!form.recipient_name.value || !form.address.value) {
+            alert('Nama penerima dan alamat wajib diisi');
+            return;
+        }
+
+        checkoutBtn.disabled = true;
+        const originalText = checkoutBtn.textContent;
+        checkoutBtn.textContent = 'Processing...';
+
+        const formData = new FormData(form);
+        formData.append('shipping_price', getShippingPrice());
+
+        fetch("{{ route('buyer.cart.checkout') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
             }
 
-            function recalc() {
-                const selected = form.querySelector('input[name="shipping"]:checked');
-                const ship = Number((selected && selected.dataset ? selected.dataset.price : 0) || 0);
-                document.getElementById('summary-shipping').textContent = formatCurrency(ship);
-                document.getElementById('summary-total').textContent = formatCurrency(subtotal + ship);
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect ?? "{{ $buyerOrdersUrl }}";
+            } else {
+                alert(data.message || 'Checkout gagal');
             }
-
-            form.addEventListener('change', function(e) {
-                if (e.target.name === 'shipping') recalc();
-            });
-
-            function doPlaceOrder(btn) {
-                const button = btn || placeBtn;
-                if (!button) {
-                    alert('Tombol checkout tidak ditemukan');
-                    return;
-                }
-                button.disabled = true;
-                const originalText = button.textContent;
-                button.textContent = 'Processing...';
-
-                const formData = new FormData(form);
-                // include shipping price for convenience
-                const shippingInput = form.querySelector('input[name="shipping"]:checked');
-                formData.append('shipping_price', (shippingInput && shippingInput.dataset ? shippingInput.dataset.price : 0) || 0);
-
-                fetch("{{ route('buyer.cart.checkout') }}", {
-                        method: 'POST'
-                        , headers: {
-                            'X-CSRF-TOKEN': csrf
-                            , 'Accept': 'application/json'
-                        }
-                        , body: formData
-                    })
-                    .then(resp => resp.json())
-                    .then(data => {
-                        if (data.success) {
-                            // use redirect provided by server, otherwise fallback to shared URL
-                            window.location.href = data.redirect || '{{ $buyerOrdersUrl }}';
-                        } else {
-                            alert(data.message || 'Checkout gagal');
-                        }
-                    })
-                    .catch(() => alert('Terjadi kesalahan'))
-                    .finally(() => {
-                        button.disabled = false;
-                        button.textContent = originalText || 'Place Order';
-                    });
-            }
-
-            const summaryBtn = document.getElementById('place-order-summary');
-            if (summaryBtn) {
-                summaryBtn.addEventListener('click', function() {
-                    doPlaceOrder(summaryBtn);
-                    window.scrollTo({
-                        top: 0
-                        , behavior: 'smooth'
-                    });
-                });
-            }
-
-            const mainBtn = document.getElementById('place-order');
-            if (mainBtn) {
-                mainBtn.addEventListener('click', function() {
-                    doPlaceOrder(mainBtn);
-                });
-            }
-
-            recalc();
+        })
+        .catch(err => {
+            console.error(err);
+            alert(err.message || 'Terjadi kesalahan saat checkout');
+        })
+        .finally(() => {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = originalText;
         });
+    });
 
-    </script>
+    // Init
+    recalcSummary();
+});
+</script>
+
 </x-app-layout>

@@ -80,9 +80,34 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('profile.update') }}" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                 @csrf
                 @method('PATCH')
+
+                <div class="sm:col-span-2 d-flex align-items-center gap-4">
+                    <img
+                        src="{{ auth()->user()->photo
+                                ? asset('storage/profile/'.auth()->user()->photo)
+                                : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name) }}"
+                        class="rounded-circle object-fit-cover"
+                        width="80"
+                        height="80"
+                        alt="Profile Photo"
+                    >
+
+                    <div>
+                        <label class="form-label text-sm text-gray-600">Foto Profil</label>
+                        <input
+                            type="file"
+                            name="photo"
+                            accept="image/*"
+                            class="form-control form-control-sm"
+                        >
+                        <small class="text-muted">PNG / JPG maks 2MB</small>
+                    </div>
+                </div>
+
 
                 <div>
                     <label class="block text-sm text-gray-600">Nama</label>
