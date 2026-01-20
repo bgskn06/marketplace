@@ -2,17 +2,6 @@
     <x-slot name="header">
         <h4 class="mb-0">Dashboard</h4>
     </x-slot>
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
     <div class="row">
 
         <!-- Earnings (Monthly) Card Example -->
@@ -321,7 +310,7 @@
 
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-lg shadow p-4">
             <div class="text-sm text-gray-500">Permohonan Seller Pending</div>
             <div class="mt-2 text-2xl font-bold text-indigo-700">{{ \App\Models\SellerRequest::where('status','pending')->count() }}</div>
@@ -334,5 +323,5 @@
             <div class="text-sm text-gray-500">Permohonan Seller Ditolak</div>
             <div class="mt-2 text-2xl font-bold text-red-700">{{ \App\Models\SellerRequest::where('status','rejected')->count() }}</div>
         </div>
-    </div>
+    </div> --}}
 </x-app-layout>
