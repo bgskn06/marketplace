@@ -21,25 +21,18 @@ class ShopReviewController extends Controller
             return redirect()->route('shops.show', $shop)->with('error', 'Anda harus login untuk memberi ulasan.');
         }
 
-        // check if user has delivered order that contains any product from this shop
-        $deliveredOrderWithShop = \App\Models\Order::where('user_id', Auth::id())
-            ->where(function ($q) {
-                $q->whereRaw("LOWER(`status`) = 'delivered'")->orWhereRaw("LOWER(`status`) = 'selesai'");
-            })
+        // Allow authenticated users to leave a shop review immediately (order_id optional)
+        $lastOrderId = \App\Models\Order::where('user_id', Auth::id())
             ->whereHas('orderItems.product', function ($q) use ($shop) {
                 $q->where('shop_id', $shop->id);
-            })->first();
-
-        if (!$deliveredOrderWithShop) {
-            return redirect()->route('shops.show', $shop)->with('error', 'Anda hanya bisa memberi ulasan setelah menerima pesanan dari toko ini.');
-        }
+            })->orderBy('created_at', 'desc')->value('id');
 
         $existing = ShopReview::where('user_id', Auth::id())->where('shop_id', $shop->id)->first();
         if ($existing) {
             $existing->update([
                 'rating' => $request->input('rating'),
                 'comment' => $request->input('comment'),
-                'order_id' => $deliveredOrderWithShop->id,
+                'order_id' => $lastOrderId,
             ]);
         } else {
             ShopReview::create([
@@ -47,7 +40,7 @@ class ShopReviewController extends Controller
                 'shop_id' => $shop->id,
                 'rating' => $request->input('rating'),
                 'comment' => $request->input('comment'),
-                'order_id' => $deliveredOrderWithShop->id,
+                'order_id' => $lastOrderId,
             ]);
         }
 

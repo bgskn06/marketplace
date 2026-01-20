@@ -248,9 +248,14 @@ class CartController extends Controller
         }
 
         if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'order_id' => $order->id, 'redirect' => route('buyer.orders')]);
+            $redirect = \Illuminate\Support\Facades\Route::has('buyer.orders') ? route('buyer.orders') : url('/buyer/orders');
+            return response()->json(['success' => true, 'order_id' => $order->id, 'redirect' => $redirect]);
         }
 
-        return redirect()->route('buyer.orders')->with('success', 'Checkout berhasil. Order #' . $order->order_number);
+        if (\Illuminate\Support\Facades\Route::has('buyer.orders')) {
+            return redirect()->route('buyer.orders')->with('success', 'Checkout berhasil. Order #' . $order->order_number);
+        }
+
+        return redirect('/buyer/orders')->with('success', 'Checkout berhasil. Order #' . $order->order_number);
     }
 }

@@ -4,7 +4,11 @@
         <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+        @if (Auth::user()->role === 'admin')
+            <div class="sidebar-brand-text mx-3">Admin</div>
+        @elseif (Auth::user()->role === 'seller')
+            <div class="sidebar-brand-text mx-3">Seller</div>
+        @endif
     </a>
 
     <hr class="sidebar-divider mb-2">

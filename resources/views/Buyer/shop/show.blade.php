@@ -126,9 +126,7 @@
                 {{-- Shop Reviews --}}
                 <div class="mt-6 bg-white rounded-lg shadow p-6">
                     <h3 class="font-semibold text-gray-800 mb-3">Ulasan Toko</h3>
-
                     <div class="text-sm text-yellow-500 mb-3">Rating saat ini: {{ number_format($shop->rating ?? 0,1) }} ★</div>
-
                     @if(session('error'))
                         <div class="text-sm text-red-600 mb-2">{{ session('error') }}</div>
                     @endif
@@ -175,7 +173,8 @@
                             <div class="text-sm text-gray-600">Belum ada ulasan untuk toko ini.</div>
                         @endforelse
                     </div>
-                </div>            </div>
+                </div>           
+            </div>
 
             <aside class="hidden lg:block">
                 <div class="bg-white rounded-lg shadow p-4">
