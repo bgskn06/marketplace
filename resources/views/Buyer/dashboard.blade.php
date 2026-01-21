@@ -65,17 +65,37 @@
                     <nav class="d-none d-md-block">
                         <ul class="nav align-items-center gap-2">
                             <li class="nav-item">
-                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
+                                <a href="{{ route('buyer.dashboard') }}"
+   class="nav-link rounded px-3
+   {{ Request::is('buyer/dashboard') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
+   Home
+</a>
 
                             </li>
                             <li class="nav-item">
-                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                                <a href="{{ $buyerOrdersUrl }}"
+   class="nav-link rounded px-3
+   {{ Request::is('buyer/orders*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
+   Orders
+</a>
+
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                                <a href="{{ route('buyer.messages') }}"
+                                class="nav-link rounded px-3
+                                {{ Request::is('buyer/messages*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
+                                Messages
+                                </a>
+
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                                <a href="{{ route('buyer.cart') }}" class="nav-link rounded px-3
+   {{ Request::is('buyer/cart*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
+                                    Cart
+                                    <span class="badge bg-danger ms-1" x-text="cartCount"></span>
+                                </a>
+
+
                             </li>
                         </ul>
                     </nav>
