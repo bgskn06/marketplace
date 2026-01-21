@@ -23,7 +23,9 @@ class User extends Authenticatable
         'password',
         'role',
         'seller_status',
-        'status'
+        'status',
+        'address',
+        'photo',
     ];
 
     /**

@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -26,13 +27,33 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // update data text (name, email, address, dll)
+        $user->fill($request->validated());
+
+        // jika email berubah → reset verifikasi
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        // =========================
+        // HANDLE FOTO PROFIL
+        // =========================
+        if ($request->hasFile('photo')) {
+
+            // hapus foto lama jika ada
+            if ($user->photo && Storage::disk('public')->exists('profile/'.$user->photo)) {
+                Storage::disk('public')->delete('profile/'.$user->photo);
+            }
+
+            $filename = uniqid().'_'.$request->photo->getClientOriginalName();
+            $request->photo->storeAs('profile', $filename, 'public');
+
+            $user->photo = $filename;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -47,6 +68,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // hapus foto profil saat akun dihapus
+        if ($user->photo && Storage::disk('public')->exists('profile/'.$user->photo)) {
+            Storage::disk('public')->delete('profile/'.$user->photo);
+        }
 
         Auth::logout();
 

@@ -19,28 +19,37 @@
     {{-- Order items --}}
     <div class="mt-3 space-y-2">
         @foreach($order->orderItems as $item)
-            @php $product = $item->product; @endphp
-            <div class="flex items-center justify-between border rounded p-3">
-                <div>
-                    <div class="font-medium text-gray-800">{{ $product->name ?? 'Produk' }}</div>
-                    <div class="text-xs text-gray-500">Qty: {{ $item->quantity }}</div>
-                </div>
-
-                <div>
-                    @php
-                        $canReview = in_array(strtolower($order->status), ['delivered', 'selesai']);
-                        $alreadyReviewed = $product ? $product->reviews()->where('user_id', auth()->id())->exists() : false;
-                    @endphp
-
-                    @if($product && $canReview && !$alreadyReviewed)
-                        <a href="{{ route('products.show', $product) }}#reviews" class="px-3 py-2 bg-indigo-600 text-white rounded-md text-sm">Beri Ulasan</a>
-                    @elseif($product && $canReview && $alreadyReviewed)
-                        <a href="{{ route('products.show', $product) }}#reviews" class="px-3 py-2 border rounded-md text-sm">Lihat Ulasan</a>
-                    @else
-                        <span class="text-xs text-gray-500">Belum bisa memberi ulasan</span>
-                    @endif
-                </div>
+        @php $product = $item->product; @endphp
+        <div class="flex items-center justify-between border rounded p-3">
+            <div>
+                <div class="font-medium text-gray-800">{{ $product->name ?? 'Produk' }}</div>
+                <div class="text-xs text-gray-500">Qty: {{ $item->quantity }}</div>
+                @if($item->shipped_at)
+                <div class="text-xs text-green-700">Dikirim: {{ $item->shipped_at->format('Y-m-d') }} @if($item->tracking_number) - Resi: {{ $item->tracking_number }} @endif</div>
+                @endif
             </div>
+
+            <div>
+                @php
+                $canReview = in_array(strtolower($order->status), ['delivered', 'selesai']);
+                $alreadyReviewed = $product ? $product->reviews()->where('user_id', auth()->id())->exists() : false;
+                @endphp
+
+                @if($product && $canReview && !$alreadyReviewed)
+                <a href="{{ route('products.show', $product) }}#reviews" class="px-3 py-2 bg-indigo-600 text-white rounded-md text-sm">Beri Ulasan</a>
+                @elseif($product && $canReview && $alreadyReviewed)
+                <a href="{{ route('products.show', $product) }}#reviews" class="px-3 py-2 border rounded-md text-sm">Lihat Ulasan</a>
+                @else
+                <span class="text-xs text-gray-500">Belum bisa memberi ulasan</span>
+                @endif
+
+                @if($order->payment_method === 'bank_transfer' && $order->status === \App\Models\Order::STATUS_UNPAID)
+                <div class="mt-2">
+                    <a href="{{ route('buyer.orders.payment', $order) }}" class="px-3 py-2 bg-yellow-500 text-white rounded-md text-sm">Lihat Pembayaran</a>
+                </div>
+                @endif
+            </div>
+        </div>
         @endforeach
     </div>
 </div>

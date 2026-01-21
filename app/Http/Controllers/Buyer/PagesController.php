@@ -7,11 +7,31 @@ use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
-    public function orders()
+    public function orders(Request $request)
     {
         $user = auth()->user();
-        $orders = $user ? $user->orders()->with(['orderItems.product'])->latest()->get() : collect();
-        return view('buyer.orders', compact('orders'));
+        if (! $user) {
+            return view('buyer.orders', ['orders' => collect(), 'counts' => [], 'status' => null]);
+        }
+
+        // base query
+        $ordersQuery = $user->orders()->with(['orderItems.product']);
+
+        // counts per status for badges
+        $counts = $user->orders()->select('status', \Illuminate\Support\Facades\DB::raw('count(*) as c'))
+            ->groupBy('status')
+            ->pluck('c', 'status')
+            ->toArray();
+
+        // filter by status via query param ?status=2
+        $status = $request->query('status');
+        if ($status !== null && $status !== '') {
+            $ordersQuery->where('status', $status);
+        }
+
+        $orders = $ordersQuery->latest()->get();
+
+        return view('buyer.orders', compact('orders', 'counts', 'status'));
     }
     public function messages()
     {
@@ -25,6 +45,21 @@ class PagesController extends Controller
         $user = auth()->user();
         $cart = $user ? $user->cartItems()->with('product')->get() : collect();
         return view('buyer.cart', compact('cart'));
+    }
+
+    public function orderPayment(\Illuminate\Http\Request $request, \App\Models\Order $order)
+    {
+        $user = auth()->user();
+        if (! $user || $order->user_id !== $user->id) {
+            abort(404);
+        }
+
+        // Only show payment page for unpaid orders
+        if ($order->status !== \App\Models\Order::STATUS_UNPAID) {
+            return redirect()->route('buyer.orders');
+        }
+
+        return view('Buyer.orders.payment', compact('order'));
     }
 
     public function profile()

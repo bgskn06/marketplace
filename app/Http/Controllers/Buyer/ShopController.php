@@ -28,16 +28,8 @@ class ShopController extends Controller
 
         $shopReviews = $shop->reviews()->with('user')->latest()->get();
 
-        // can the current user review this shop? (delivered order that contains product from this shop)
-        $canReview = false;
-        if (auth()->check()) {
-            $canReview = \App\Models\Order::where('user_id', auth()->id())
-                ->where(function ($q) {
-                    $q->whereRaw("LOWER(`status`) = 'delivered'")->orWhereRaw("LOWER(`status`) = 'selesai'");
-                })->whereHas('orderItems.product', function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
-                })->exists();
-        }
+        // can the current user review this shop? (allow immediate shop reviews without waiting for delivery)
+        $canReview = auth()->check();
 
         return view('buyer.shop.show', compact('shop', 'products', 'isFollowing', 'shopReviews', 'canReview'));
     }

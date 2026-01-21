@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
+    protected $fillable = ['order_id', 'product_id', 'quantity', 'price', 'tracking_number', 'shipped_at'];
+
+    protected $dates = ['shipped_at'];
 
     public function order()
     {
@@ -16,5 +18,10 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function isShipped(): bool
+    {
+        return ! is_null($this->shipped_at);
     }
 }

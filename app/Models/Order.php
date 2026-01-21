@@ -15,6 +15,10 @@ class Order extends Model
         'total',
         'tracking_number',
         'status',
+        'payment_method',
+        'payment_code',
+        'payment_expires_at',
+        'paid_at',
     ];
 
     const STATUS_CANCELLED = 0;
@@ -45,5 +49,39 @@ class Order extends Model
             5 => 'Refunded',
             default => 'Unknown',
         };
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        return $this->seller_status_label; // reuse same labels for general use
+    }
+
+    /**
+     * Check whether all order items are shipped.
+     */
+    public function allItemsShipped(): bool
+    {
+        return ! $this->orderItems()->whereNull('shipped_at')->exists();
+    }
+
+    /**
+     * Called after seller marks their items shipped. If all items shipped, update order status to SHIPPED.
+     */
+    protected $casts = [
+        'payment_expires_at' => 'datetime',
+        'paid_at' => 'datetime',
+    ];
+
+    public function updateStatusAfterItemsShipped(): self
+    {
+        if ($this->allItemsShipped()) {
+            $this->status = self::STATUS_SHIPPED;
+            $this->shipped_at = now();
+            $this->save();
+
+            // TODO: dispatch notification to buyer
+        }
+
+        return $this;
     }
 }
