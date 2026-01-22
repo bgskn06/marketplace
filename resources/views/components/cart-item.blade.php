@@ -1,8 +1,30 @@
 @props(['item'])
 
+<style>
+    .product-thumb {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+</style>
+
 <div data-item-id="{{ $item->id }}" class="reveal p-3 rounded-lg bg-white shadow-sm flex items-center gap-4 justify-between">
-    <div class="flex items-center gap-4">
-        <div class="w-full h-44 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+    <div class="flex-shrink-0">
+
+        <div class="product-thumb">
             @php
                 $photoPath = $item->product->mainPhoto?->path
                     ?? $item->product->photos->first()?->path
@@ -13,14 +35,13 @@
                 <img
                     src="{{ asset('storage/'.$photoPath) }}"
                     alt="{{ $item->product->name }}"
-                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                    loading="lazy"
                 >
             @else
-                <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                    No Image
-                </div>
+                <span>No Image</span>
             @endif
         </div>
+
 
         <div class="min-w-0">
             <div class="font-medium text-gray-800 truncate">{{ optional($item->product)->name ?? optional($item->product)->title ?? 'Produk tidak ditemukan' }}</div>

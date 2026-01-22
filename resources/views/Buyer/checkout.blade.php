@@ -1,15 +1,68 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900">Checkout</h1>
-            <nav class="flex items-center gap-4 text-sm">
-                <a href="{{ route('buyer.dashboard') }}" class="text-gray-700 hover:text-indigo-700">Home</a>
-                <a href="{{ route('buyer.orders') }}" class="text-gray-700 hover:text-indigo-700">Orders</a>
-                <a href="{{ route('buyer.cart') }}" class="text-gray-700 hover:text-indigo-700">Cart</a>
-                <a href="{{ route('buyer.profile') }}" class="text-gray-700 hover:text-indigo-700">Profile</a>
-            </nav>
+    <header class="border-bottom bg-white">
+        <div class="container-fluid container-xxl">
+            <div class="d-flex align-items-center justify-content-between" style="height:64px">
+
+                <!-- LEFT -->
+                <div class="d-flex align-items-center gap-4 flex-grow-1">
+
+                    <!-- LOGO -->
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+                            <path d="M9 16v-8l3 5l3 -5v8"></path>
+                            <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
+              c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
+              a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
+              a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
+              c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
+              a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
+                        </svg>
+                        <span class="fs-5 fw-medium text-dark">
+                            Marketplace <span class="fw-bold">UDB</span>
+                        </span>
+                    </a>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="d-flex align-items-center gap-3">
+
+                    <!-- NAV -->
+                    <nav class="d-none d-md-block">
+                        <ul class="nav align-items-center gap-2">
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
+
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- DIVIDER -->
+                    <div class="vr d-none d-md-block"></div>
+
+                    <!-- AVATAR -->
+                    <a href="{{ route('buyer.profile') }}">
+                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                    </a>
+
+                    <!-- MOBILE MENU -->
+                    <button class="btn btn-light d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+            </div>
         </div>
-    </x-slot>
+    </header>
+
 
     <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
         <div class="bg-white rounded-lg shadow p-6">
@@ -35,16 +88,25 @@
                         <div class="mt-4">
                             <h3 class="font-medium">Opsi Pengiriman</h3>
                             @foreach($shippingOptions as $key => $opt)
-                                <label class="flex items-center gap-3 mt-2">
-                                    <input type="radio" name="shipping" value="{{ $key }}" data-price="{{ $opt[1] }}" {{ $loop->first ? 'checked' : '' }}>
-                                    <span class="text-sm">{{ $opt[0] }} — <strong>Rp{{ number_format($opt[1],0,',','.') }}</strong></span>
-                                </label>
+                            <label class="flex items-center gap-3 mt-2">
+                                <input type="radio" name="shipping" value="{{ $key }}" data-price="{{ $opt[1] }}" {{ $loop->first ? 'checked' : '' }}>
+                                <span class="text-sm">{{ $opt[0] }} — <strong>Rp{{ number_format($opt[1],0,',','.') }}</strong></span>
+                            </label>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="font-medium">Metode Pembayaran</h3>
+                            @foreach($paymentOptions as $key => $label)
+                            <label class="flex items-center gap-3 mt-2">
+                                <input type="radio" name="payment_method" value="{{ $key }}" {{ $loop->first ? 'checked' : '' }}>
+                                <span class="text-sm">{{ $label }}</span>
+                            </label>
                             @endforeach
                         </div>
 
                         <div class="mt-6">
-                            <button id="place-order" type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Place Order</button>
-                            <a href="{{ route('buyer.cart') }}" class="ml-3 text-sm text-gray-600">Kembali ke Keranjang</a>
+                            <a href="{{ route('buyer.cart') }}" class="btn btn-success w-100">Kembali ke Keranjang</a>
                         </div>
                     </form>
                 </section>
@@ -53,10 +115,10 @@
                     <h3 class="font-semibold">Ringkasan Pesanan</h3>
                     <div class="mt-4 space-y-3">
                         @foreach($items as $item)
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm text-gray-700">{{ optional($item->product)->name ?? 'Produk' }} x {{ $item->quantity }}</div>
-                                <div class="text-sm text-gray-700">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>
-                            </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-700">{{ optional($item->product)->name ?? 'Produk' }} x {{ $item->quantity }}</div>
+                            <div class="text-sm text-gray-700">Rp{{ number_format((optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity,0,',','.') }}</div>
+                        </div>
                         @endforeach
                     </div>
 
@@ -71,6 +133,7 @@
                         <div>Ongkos Kirim</div>
                         <div id="summary-shipping">Rp{{ number_format(array_values($shippingOptions)[0][1],0,',','.') }}</div>
                     </div>
+
 
                     <div class="flex items-center justify-between text-lg font-semibold text-indigo-700 mt-4">
                         <div>Total</div>
@@ -87,70 +150,87 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('checkout-form');
-        const placeBtn = document.getElementById('place-order');
-        const csrf = '{{ csrf_token() }}';
-        const subtotal = Number({{ $subtotal }});
 
-        function formatCurrency(value) {
-            return 'Rp' + Number(value).toLocaleString('id-ID');
+    const form = document.getElementById('checkout-form');
+    const checkoutBtn = document.getElementById('place-order-summary');
+    const csrf = '{{ csrf_token() }}';
+
+    const subtotal = Number(@json($subtotal));
+
+    function formatCurrency(value) {
+        return 'Rp' + Number(value).toLocaleString('id-ID');
+    }
+
+    function getShippingPrice() {
+        const selected = form.querySelector('input[name="shipping"]:checked');
+        return selected ? Number(selected.dataset.price) : 0;
+    }
+
+    function recalcSummary() {
+        const shipping = getShippingPrice();
+        document.getElementById('summary-shipping').textContent = formatCurrency(shipping);
+        document.getElementById('summary-total').textContent = formatCurrency(subtotal + shipping);
+    }
+
+    // Update total when shipping changed
+    form.addEventListener('change', function (e) {
+        if (e.target.name === 'shipping') {
+            recalcSummary();
         }
-
-        function recalc() {
-            const selected = form.querySelector('input[name="shipping"]:checked');
-            const ship = Number(selected?.dataset.price || 0);
-            document.getElementById('summary-shipping').textContent = formatCurrency(ship);
-            document.getElementById('summary-total').textContent = formatCurrency(subtotal + ship);
-        }
-
-        form.addEventListener('change', function (e) {
-            if (e.target.name === 'shipping') recalc();
-        });
-
-        function doPlaceOrder(btn) {
-            const button = btn || placeBtn;
-            button.disabled = true;
-            const originalText = button.textContent;
-            button.textContent = 'Processing...';
-
-            const formData = new FormData(form);
-            // include shipping price for convenience
-            const shippingInput = form.querySelector('input[name="shipping"]:checked');
-            formData.append('shipping_price', shippingInput?.dataset.price || 0);
-
-            fetch("{{ route('buyer.cart.checkout') }}", {
-                method: 'POST',
-                headers: {'X-CSRF-TOKEN': csrf, 'Accept': 'application/json'},
-                body: formData
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect || '{{ route('buyer.orders') }}';
-                } else {
-                    alert(data.message || 'Checkout gagal');
-                }
-            })
-            .catch(() => alert('Terjadi kesalahan'))
-            .finally(() => {
-                button.disabled = false;
-                button.textContent = originalText || 'Place Order';
-            });
-        }
-
-        placeBtn.addEventListener('click', function () {
-            doPlaceOrder(placeBtn);
-        });
-
-        const summaryBtn = document.getElementById('place-order-summary');
-        if (summaryBtn) {
-            summaryBtn.addEventListener('click', function () {
-                doPlaceOrder(summaryBtn);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        recalc();
     });
-    </script>
+
+    checkoutBtn.addEventListener('click', function () {
+
+        // BASIC VALIDATION
+        if (!form.recipient_name.value || !form.address.value) {
+            alert('Nama penerima dan alamat wajib diisi');
+            return;
+        }
+
+        checkoutBtn.disabled = true;
+        const originalText = checkoutBtn.textContent;
+        checkoutBtn.textContent = 'Processing...';
+
+        const formData = new FormData(form);
+        formData.append('shipping_price', getShippingPrice());
+
+        fetch("{{ route('buyer.cart.checkout') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect ?? "{{ $buyerOrdersUrl }}";
+            } else {
+                alert(data.message || 'Checkout gagal');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert(err.message || 'Terjadi kesalahan saat checkout');
+        })
+        .finally(() => {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = originalText;
+        });
+    });
+
+    // Init
+    recalcSummary();
+});
+</script>
+
 </x-app-layout>

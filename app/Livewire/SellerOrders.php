@@ -11,8 +11,8 @@ class SellerOrders extends Component
 {
     use WithPagination;
 
-    public $activeTab = Order::STATUS_PAID;
-    
+    public $activeTab = Order::STATUS_UNPAID;
+
     public $inputResi;
     public $selectedOrderId;
 
@@ -35,28 +35,49 @@ class SellerOrders extends Component
         ]);
 
         $order = Order::where('id', $this->selectedOrderId)
-                      ->where('seller_id', Auth::id())
-                      ->first();
+            ->whereHas('orderItems.product.shop', function ($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->first();
 
         if ($order && $order->status == Order::STATUS_PAID) {
-            $order->update([
-                'status' => Order::STATUS_SHIPPED,
-                'tracking_number' => $this->inputResi
-            ]);
+            // get order items that belong to this seller's shop and are not shipped yet
+            $sellerItems = $order->orderItems()->whereHas('product.shop', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->whereNull('shipped_at')->get();
+
+            if ($sellerItems->isEmpty()) {
+                $this->dispatch('swal:info', [
+                    'title' => 'Info',
+                    'text' => 'Tidak ada item yang perlu dikirim oleh toko Anda atau sudah dikirim.'
+                ]);
+                return;
+            }
+
+            foreach ($sellerItems as $item) {
+                $item->tracking_number = $this->inputResi;
+                $item->shipped_at = now();
+                $item->save();
+            }
+
+            // After marking seller's items shipped, update order status if all items shipped
+            $order->updateStatusAfterItemsShipped();
 
             $this->dispatch('close-modal');
-            
+
             $this->dispatch('swal:success', [
-                'title' => 'Berhasil!', 
-                'text' => 'Resi berhasil diinput. Status pesanan berubah menjadi Dikirim.'
+                'title' => 'Berhasil!',
+                'text' => 'Item toko Anda berhasil ditandai sebagai dikirim.'
             ]);
         }
     }
 
     public function render()
     {
-        $orders = Order::with(['user', 'orderItems.product']) // Eager load biar cepat
-            ->where('seller_id', Auth::id())
+        $orders = Order::with(['user', 'orderItems.product.shop']) // Eager load biar cepat
+            ->whereHas('orderItems.product.shop', function ($q) {
+                $q->where('user_id', Auth::id());
+            })
             ->where('status', $this->activeTab)
             ->latest()
             ->paginate(5);
