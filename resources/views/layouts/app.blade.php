@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-
-    <title>SB Admin 2 - Dashboard</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <title>Marketify</title>
 
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
 
@@ -17,13 +17,13 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 
-    {{-- @if(!(auth()->check() && auth()->user()->role === 'buyer')) --}}
-        <link href="{{ asset('admin_assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    {{-- @if (!(auth()->check() && auth()->user()->role === 'buyer')) --}}
+    <link href="{{ asset('admin_assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
     {{-- @endif --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -37,7 +37,7 @@
 
     <div id="wrapper">
 
-        @if(auth()->check() && auth()->user()->role === 'buyer')
+        @if (auth()->check() && auth()->user()->role === 'buyer')
             <div id="content-wrapper" class="min-h-screen bg-gray-100 w-full">
                 <div id="content" class="py-6">
                     <div class="mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +54,6 @@
                 </div>
             </div>
         @else
-
             {{-- Admin / Seller layout (original) --}}
             @include('layouts.sidebar')
             <div id="content-wrapper" class="d-flex flex-column">
@@ -118,234 +117,309 @@
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Only run cart script if cart elements exist
-        const cartPage = document.querySelector('.mt-4.space-y-3');
-        if (!cartPage) {
-            console.debug('[Cart JS] Not on cart page, skipping cart event binding.');
-            return;
-        }
-        const selector = "form[action='{{ route('buyer.cart.add') }}']";
-        document.querySelectorAll(selector).forEach(form => {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const btn = form.querySelector('button[type=\"submit\"]');
-                if (btn) btn.disabled = true;
-                const formData = new FormData(form);
-                try {
-                    const res = await fetch(form.action, {
-                        method: form.method || 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content,
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    });
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    const json = await res.json();
-                    if (json.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Berhasil dimasukkan ke keranjang',
-                            timer: 1500,
-                            showConfirmButton: false
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only run cart script if cart elements exist
+            const cartPage = document.querySelector('.mt-4.space-y-3');
+            if (!cartPage) {
+                console.debug('[Cart JS] Not on cart page, skipping cart event binding.');
+                return;
+            }
+            const selector = "form[action='{{ route('buyer.cart.add') }}']";
+            document.querySelectorAll(selector).forEach(form => {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const btn = form.querySelector('button[type=\"submit\"]');
+                    if (btn) btn.disabled = true;
+                    const formData = new FormData(form);
+                    try {
+                        const res = await fetch(form.action, {
+                            method: form.method || 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name=\"csrf-token\"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: formData
                         });
-                        if (typeof json.cart_count !== 'undefined') {
-                            document.querySelectorAll('[x-text="cartCount"], .cart-count').forEach(el => {
-                                el.textContent = json.cart_count;
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        const json = await res.json();
+                        if (json.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: 'Berhasil dimasukkan ke keranjang',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            if (typeof json.cart_count !== 'undefined') {
+                                document.querySelectorAll('[x-text="cartCount"], .cart-count')
+                                    .forEach(el => {
+                                        el.textContent = json.cart_count;
+                                    });
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Gagal menambahkan ke keranjang'
                             });
                         }
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menambahkan ke keranjang' });
-                    }
-                } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menambahkan ke keranjang' });
-                } finally {
-                    if (btn) btn.disabled = false;
-                }
-            });
-        });
-
-        // Cart interactions: update quantity, remove, checkout
-        const baseCartUrl = "{{ url('/buyer/cart') }}";
-
-        function formatIDR(value) {
-            return 'Rp' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(value);
-        }
-
-        function updateCartCount(count) {
-            document.querySelectorAll('[x-text="cartCount"], .cart-count').forEach(el => {
-                el.textContent = count;
-            });
-        }
-
-        function bindCartEvents() {
-            let found = false;
-            document.querySelectorAll('.qty-increase').forEach(btn => {
-                found = true;
-                if (btn.dataset.bound) return;
-                btn.dataset.bound = 1;
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    const itemId = this.dataset.itemId;
-                    const wrapper = this.closest('[data-item-id]');
-                    const qtyEl = wrapper.querySelector('.qty-number');
-                    const current = parseInt(qtyEl.textContent || '0');
-                    const newQty = current + 1;
-                    this.disabled = true;
-                    try {
-                        const res = await fetch(`${baseCartUrl}/${itemId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ quantity: newQty })
-                        });
-                        const json = await res.json();
-                        if (json.success) {
-                            qtyEl.textContent = json.item_quantity;
-                            wrapper.querySelector('.item-total').textContent = formatIDR(json.item_total);
-                            document.getElementById('cart-subtotal')?.textContent = formatIDR(json.cart_subtotal);
-                            if (typeof json.cart_count !== 'undefined') updateCartCount(json.cart_count);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Gagal mengupdate jumlah' });
-                        }
                     } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat mengupdate jumlah' });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan saat menambahkan ke keranjang'
+                        });
                     } finally {
-                        this.disabled = false;
+                        if (btn) btn.disabled = false;
                     }
                 });
             });
-            document.querySelectorAll('.qty-decrease').forEach(btn => {
-                found = true;
-                if (btn.dataset.bound) return;
-                btn.dataset.bound = 1;
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    const itemId = this.dataset.itemId;
-                    const wrapper = this.closest('[data-item-id]');
-                    const qtyEl = wrapper.querySelector('.qty-number');
-                    const current = parseInt(qtyEl.textContent || '0');
-                    if (current <= 1) return;
-                    const newQty = current - 1;
-                    this.disabled = true;
-                    try {
-                        const res = await fetch(`${baseCartUrl}/${itemId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ quantity: newQty })
-                        });
-                        const json = await res.json();
-                        if (json.success) {
-                            qtyEl.textContent = json.item_quantity;
-                            wrapper.querySelector('.item-total').textContent = formatIDR(json.item_total);
-                            document.getElementById('cart-subtotal')?.textContent = formatIDR(json.cart_subtotal);
-                            if (typeof json.cart_count !== 'undefined') updateCartCount(json.cart_count);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Gagal mengupdate jumlah' });
-                        }
-                    } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat mengupdate jumlah' });
-                    } finally {
-                        this.disabled = false;
-                    }
+
+            // Cart interactions: update quantity, remove, checkout
+            const baseCartUrl = "{{ url('/buyer/cart') }}";
+
+            function formatIDR(value) {
+                return 'Rp' + new Intl.NumberFormat('id-ID', {
+                    maximumFractionDigits: 0
+                }).format(value);
+            }
+
+            function updateCartCount(count) {
+                document.querySelectorAll('[x-text="cartCount"], .cart-count').forEach(el => {
+                    el.textContent = count;
                 });
-            });
-            document.querySelectorAll('.remove-from-cart').forEach(btn => {
-                found = true;
-                if (btn.dataset.bound) return;
-                btn.dataset.bound = 1;
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    const itemId = this.dataset.itemId;
-                    const wrapper = this.closest('[data-item-id]');
-                    const confirm = await Swal.fire({
-                        title: 'Hapus item?',
-                        text: 'Item akan dihapus dari keranjang',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Hapus',
-                        cancelButtonText: 'Batal'
+            }
+
+            function bindCartEvents() {
+                let found = false;
+                document.querySelectorAll('.qty-increase').forEach(btn => {
+                    found = true;
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = 1;
+                    btn.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        const itemId = this.dataset.itemId;
+                        const wrapper = this.closest('[data-item-id]');
+                        const qtyEl = wrapper.querySelector('.qty-number');
+                        const current = parseInt(qtyEl.textContent || '0');
+                        const newQty = current + 1;
+                        this.disabled = true;
+                        try {
+                            const res = await fetch(`${baseCartUrl}/${itemId}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    quantity: newQty
+                                })
+                            });
+                            const json = await res.json();
+                            if (json.success) {
+                                qtyEl.textContent = json.item_quantity;
+                                wrapper.querySelector('.item-total').textContent = formatIDR(
+                                    json.item_total);
+                                document.getElementById('cart-subtotal')?.textContent =
+                                    formatIDR(json.cart_subtotal);
+                                if (typeof json.cart_count !== 'undefined') updateCartCount(json
+                                    .cart_count);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: json.message || 'Gagal mengupdate jumlah'
+                                });
+                            }
+                        } catch (err) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat mengupdate jumlah'
+                            });
+                        } finally {
+                            this.disabled = false;
+                        }
                     });
-                    if (!confirm.isConfirmed) return;
-                    this.disabled = true;
-                    try {
-                        const res = await fetch(`${baseCartUrl}/${itemId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
+                });
+                document.querySelectorAll('.qty-decrease').forEach(btn => {
+                    found = true;
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = 1;
+                    btn.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        const itemId = this.dataset.itemId;
+                        const wrapper = this.closest('[data-item-id]');
+                        const qtyEl = wrapper.querySelector('.qty-number');
+                        const current = parseInt(qtyEl.textContent || '0');
+                        if (current <= 1) return;
+                        const newQty = current - 1;
+                        this.disabled = true;
+                        try {
+                            const res = await fetch(`${baseCartUrl}/${itemId}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    quantity: newQty
+                                })
+                            });
+                            const json = await res.json();
+                            if (json.success) {
+                                qtyEl.textContent = json.item_quantity;
+                                wrapper.querySelector('.item-total').textContent = formatIDR(
+                                    json.item_total);
+                                document.getElementById('cart-subtotal')?.textContent =
+                                    formatIDR(json.cart_subtotal);
+                                if (typeof json.cart_count !== 'undefined') updateCartCount(json
+                                    .cart_count);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: json.message || 'Gagal mengupdate jumlah'
+                                });
                             }
+                        } catch (err) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat mengupdate jumlah'
+                            });
+                        } finally {
+                            this.disabled = false;
+                        }
+                    });
+                });
+                document.querySelectorAll('.remove-from-cart').forEach(btn => {
+                    found = true;
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = 1;
+                    btn.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        const itemId = this.dataset.itemId;
+                        const wrapper = this.closest('[data-item-id]');
+                        const confirm = await Swal.fire({
+                            title: 'Hapus item?',
+                            text: 'Item akan dihapus dari keranjang',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Hapus',
+                            cancelButtonText: 'Batal'
                         });
-                        const json = await res.json();
-                        if (json.success) {
-                            wrapper.remove();
-                            document.getElementById('cart-subtotal')?.textContent = formatIDR(json.cart_subtotal || 0);
-                            if (typeof json.cart_count !== 'undefined') updateCartCount(json.cart_count);
-                            if (document.querySelectorAll('[data-item-id]').length === 0) {
-                                const container = document.querySelector('.mt-4.space-y-3');
-                                if (container) {
-                                    container.innerHTML = '<div class="text-sm text-gray-600">Keranjang kosong.</div>';
+                        if (!confirm.isConfirmed) return;
+                        this.disabled = true;
+                        try {
+                            const res = await fetch(`${baseCartUrl}/${itemId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
                                 }
+                            });
+                            const json = await res.json();
+                            if (json.success) {
+                                wrapper.remove();
+                                document.getElementById('cart-subtotal')?.textContent =
+                                    formatIDR(json.cart_subtotal || 0);
+                                if (typeof json.cart_count !== 'undefined') updateCartCount(json
+                                    .cart_count);
+                                if (document.querySelectorAll('[data-item-id]').length === 0) {
+                                    const container = document.querySelector('.mt-4.space-y-3');
+                                    if (container) {
+                                        container.innerHTML =
+                                            '<div class="text-sm text-gray-600">Keranjang kosong.</div>';
+                                    }
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Terhapus',
+                                    text: 'Item dihapus dari keranjang',
+                                    timer: 1200,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: json.message || 'Gagal menghapus item'
+                                });
                             }
-                            Swal.fire({ icon: 'success', title: 'Terhapus', text: 'Item dihapus dari keranjang', timer: 1200, showConfirmButton: false });
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Gagal menghapus item' });
+                        } catch (err) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat menghapus item'
+                            });
+                        } finally {
+                            this.disabled = false;
                         }
-                    } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menghapus item' });
-                    } finally {
-                        this.disabled = false;
-                    }
+                    });
                 });
-            });
-            const checkoutBtn = document.getElementById('checkout-btn');
-            if (checkoutBtn && !checkoutBtn.dataset.bound) {
-                found = true;
-                checkoutBtn.dataset.bound = 1;
-                checkoutBtn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    this.disabled = true;
-                    try {
-                        const res = await fetch("{{ route('buyer.cart.checkout') }}", {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
+                const checkoutBtn = document.getElementById('checkout-btn');
+                if (checkoutBtn && !checkoutBtn.dataset.bound) {
+                    found = true;
+                    checkoutBtn.dataset.bound = 1;
+                    checkoutBtn.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        this.disabled = true;
+                        try {
+                            const res = await fetch("{{ route('buyer.cart.checkout') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            const json = await res.json();
+                            if (json.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Checkout berhasil',
+                                    text: 'Pesanan dibuat',
+                                    timer: 1400,
+                                    showConfirmButton: false
+                                });
+                                setTimeout(() => {
+                                    if (json.redirect) window.location = json.redirect;
+                                    else location.reload();
+                                }, 1400);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: json.message || 'Gagal checkout'
+                                });
                             }
-                        });
-                        const json = await res.json();
-                        if (json.success) {
-                            Swal.fire({ icon: 'success', title: 'Checkout berhasil', text: 'Pesanan dibuat', timer: 1400, showConfirmButton: false });
-                            setTimeout(() => {
-                                if (json.redirect) window.location = json.redirect;
-                                else location.reload();
-                            }, 1400);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Gagal checkout' });
+                        } catch (err) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat checkout'
+                            });
+                        } finally {
+                            this.disabled = false;
                         }
-                    } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat checkout' });
-                    } finally {
-                        this.disabled = false;
-                    }
-                });
+                    });
+                }
+                if (!found) {
+                    console.error(
+                        '[Cart JS] Tidak menemukan tombol qty-increase, qty-decrease, remove-from-cart, atau checkout-btn di halaman. Pastikan markup sudah benar.'
+                        );
+                }
             }
-            if (!found) {
-                console.error('[Cart JS] Tidak menemukan tombol qty-increase, qty-decrease, remove-from-cart, atau checkout-btn di halaman. Pastikan markup sudah benar.');
-            }
-        }
-        // Initial bind
-        bindCartEvents();
-    });
+            // Initial bind
+            bindCartEvents();
+        });
     </script>
 
 

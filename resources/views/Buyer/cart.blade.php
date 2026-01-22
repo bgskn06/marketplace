@@ -8,7 +8,8 @@
 
                     <!-- LOGO -->
                     <a href="#" class="d-flex align-items-center gap-2 text-decoration-none">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
                             <path d="M9 16v-8l3 5l3 -5v8"></path>
                             <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
               c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
@@ -18,7 +19,7 @@
               a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
                         </svg>
                         <span class="fs-5 fw-medium text-dark">
-                            Marketplace <span class="fw-bold">UDB</span>
+                            MARKETIFY
                         </span>
                     </a>
                 </div>
@@ -29,28 +30,80 @@
                     <!-- NAV -->
                     <nav class="d-none d-md-block">
                         <ul class="nav align-items-center gap-2">
-                            <li class="nav-item">
-                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
 
-                            </li>
+                            {{-- HOME TAB --}}
                             <li class="nav-item">
-                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                                <a href="{{ route('buyer.dashboard') }}"
+                                    class="nav-link px-3 rounded-pill fw-medium transition-all   {{ request()->routeIs('buyer.dashboard')
+                   ? 'bg-success bg-opacity-10 text-success fw-bold shadow-sm'
+                   : 'text-muted hover-text-success' }}">
+                                    Home
+                                </a>
                             </li>
+
+                            {{-- ORDERS TAB --}}
                             <li class="nav-item">
-                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                                <a href="{{ $buyerOrdersUrl }}"
+                                    class="nav-link px-3 rounded-pill fw-medium transition-all 
+               {{ request()->routeIs('buyer.orders*')
+                   ? 'bg-success bg-opacity-10 text-success fw-bold shadow-sm'
+                   : 'text-muted hover-text-success' }}">
+                                    Orders
+                                </a>
                             </li>
+
+                            {{-- MESSAGES TAB --}}
                             <li class="nav-item">
-                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                                <a href="{{ route('buyer.messages') }}"
+                                    class="nav-link px-3 rounded-pill fw-medium transition-all 
+               {{ request()->routeIs('buyer.messages*')
+                   ? 'bg-success bg-opacity-10 text-success fw-bold shadow-sm'
+                   : 'text-muted hover-text-success' }}">
+                                    Messages
+                                </a>
                             </li>
+
+                            {{-- CART TAB --}}
+                            <li class="nav-item">
+                                <a href="{{ route('buyer.cart') }}"
+                                    class="nav-link px-3 rounded-pill fw-medium transition-all d-flex align-items-center gap-2
+               {{ request()->routeIs('buyer.cart*')
+                   ? 'bg-success bg-opacity-10 text-success fw-bold shadow-sm'
+                   : 'text-muted hover-text-success' }}">
+                                    Cart
+                                    {{-- Badge Cart --}}
+                                    <span
+                                        class="badge rounded-pill 
+                   {{ request()->routeIs('buyer.cart*') ? 'bg-success text-light' : 'bg-light text-secondary border' }}"
+                                        x-text="cartCount" style="font-size: 0.75rem;">
+                                    </span>
+                                </a>
+                            </li>
+
                         </ul>
                     </nav>
+
+                    {{-- Tambahkan CSS kecil ini di bagian <head> atau di bawah file agar transisinya halus --}}
+                    <style>
+                        .transition-all {
+                            transition: all 0.3s ease;
+                        }
+
+                        .hover-text-success:hover {
+                            color: #198754 !important;
+                            /* Warna success bootstrap */
+                            background-color: rgba(25, 135, 84, 0.05);
+                            /* Sedikit background hijau saat hover */
+                        }
+                    </style>
 
                     <!-- DIVIDER -->
                     <div class="vr d-none d-md-block"></div>
 
                     <!-- AVATAR -->
                     <a href="{{ route('buyer.profile') }}">
-                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40"
+                            class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
                     </a>
 
                     <!-- MOBILE MENU -->
@@ -73,10 +126,10 @@
                     <div class="mt-4 space-y-3">
                         @php $subtotal = 0; @endphp
                         @forelse ($cart as $item)
-                        <x-cart-item :item="$item" />
-                        @php $subtotal += (optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity; @endphp
+                            <x-cart-item :item="$item" />
+                            @php $subtotal += (optional($item->product)->price ?? optional($item->product)->harga ?? 0) * $item->quantity; @endphp
                         @empty
-                        <div class="text-sm text-gray-600">Keranjang kosong.</div>
+                            <div class="text-sm text-gray-600">Keranjang kosong.</div>
                         @endforelse
                     </div>
                 </div>
@@ -87,11 +140,13 @@
                     <div class="font-medium text-gray-700">Ringkasan</div>
                     <div class="mt-4 flex items-center justify-between">
                         <div class="text-sm text-gray-600">Subtotal</div>
-                        <div id="cart-subtotal" class="text-xl font-extrabold text-indigo-700">Rp{{ number_format($subtotal,0,',','.') }}</div>
+                        <div id="cart-subtotal" class="text-xl font-extrabold text-indigo-700">
+                            Rp{{ number_format($subtotal, 0, ',', '.') }}</div>
                     </div>
 
                     <div class="mt-4">
-                        <a id="checkout-btn" href="{{ route('buyer.cart.checkout.show') }}" class="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-3 rounded-lg shadow hover:from-green-500 hover:to-green-700 transition">Checkout</a>
+                        <a id="checkout-btn" href="{{ route('buyer.cart.checkout.show') }}"
+                            class="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-3 rounded-lg shadow hover:from-green-500 hover:to-green-700 transition">Checkout</a>
                     </div>
 
                     <div class="mt-4 text-sm text-gray-500">Pengiriman dan pajak akan dihitung saat checkout.</div>
@@ -123,13 +178,13 @@
 
             function updateQuantity(itemId, newQty, container) {
                 fetch(`/buyer/cart/${itemId}`, {
-                        method: 'PATCH'
-                        , headers: {
-                            'Content-Type': 'application/json'
-                            , 'X-CSRF-TOKEN': csrf
-                            , 'Accept': 'application/json'
-                        }
-                        , body: JSON.stringify({
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
                             quantity: newQty
                         })
                     })
@@ -157,10 +212,10 @@
 
             function removeItem(itemId, container) {
                 fetch(`/buyer/cart/${itemId}`, {
-                        method: 'DELETE'
-                        , headers: {
-                            'X-CSRF-TOKEN': csrf
-                            , 'Accept': 'application/json'
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            'Accept': 'application/json'
                         }
                     })
                     .then(resp => {
@@ -226,6 +281,5 @@
                 }
             });
         });
-
     </script>
 </x-app-layout>

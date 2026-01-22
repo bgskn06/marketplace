@@ -114,7 +114,7 @@
 
                         <div class="w-full md:w-1/2">
                             <h2 class="text-xl font-bold text-gray-800">{{ $product->name }}</h2>
-                            <div class="text-sm text-gray-500">{{ $product->category }}</div>
+                            <div class="text-sm text-gray-500">{{ $product->category->name }}</div>
                             <div class="mt-4 text-3xl font-extrabold text-indigo-700">
                                 Rp{{ number_format($product->price ?? ($product->harga ?? 0), 0, ',', '.') }}</div>
                             <div class="mt-4 text-gray-700">{!! nl2br(e($product->description)) !!}</div>

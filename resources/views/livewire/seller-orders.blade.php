@@ -3,6 +3,12 @@
 
     {{-- === 1. TABS NAVIGASI (Sesuai Status Teman Anda) === --}}
     <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab == 1 ? 'active font-weight-bold text-primary border-top-primary' : 'text-muted' }}" href="#" wire:click.prevent="setTab(2)">
+                Belum Bayar<i class="fas fa-box ml-1"></i>
+            </a>
+        </li>
+
         {{-- Tab 2: Paid (Tugas Utama) --}}
         <li class="nav-item">
             <a class="nav-link {{ $activeTab == 2 ? 'active font-weight-bold text-primary border-top-primary' : 'text-muted' }}" href="#" wire:click.prevent="setTab(2)">

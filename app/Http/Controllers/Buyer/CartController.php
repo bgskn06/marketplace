@@ -134,6 +134,12 @@ class CartController extends Controller
             return redirect()->route('buyer.cart')->with('success', 'Keranjang kosong');
         }
 
+        $sellerId = null;
+        $firstItem = $items->first();
+        if ($firstItem && $firstItem->product && $firstItem->product->shop) {
+            $sellerId = $firstItem->product->shop->user_id;
+        }
+
         // validate stock
         foreach ($items as $item) {
             $p = $item->product;
@@ -175,6 +181,7 @@ class CartController extends Controller
                 'user_id' => $user->id,
                 'order_number' => \Illuminate\Support\Str::upper(uniqid('ORD-')),
                 'total' => $totalWithShipping,
+                'seller_id' => $sellerId,
                 // Use numeric status constant (default Unpaid)
                 'status' => \App\Models\Order::STATUS_UNPAID,
             ];

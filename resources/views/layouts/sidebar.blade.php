@@ -1,10 +1,17 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="text-success">
+            <path d="M9 16v-8l3 5l3 -5v8"></path>
+            <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
+              c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
+              a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
+              a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
+              c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
+              a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
+        </svg>
+        <div class="sidebar-brand-text mx-3">MARKETIFY</div>
     </a>
 
     <hr class="sidebar-divider mb-2">
