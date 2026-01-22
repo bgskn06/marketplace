@@ -9,7 +9,8 @@
 
                     <!-- LOGO -->
                     <a href="#" class="d-flex align-items-center gap-2 text-decoration-none">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
                             <path d="M9 16v-8l3 5l3 -5v8"></path>
                             <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
                 c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
@@ -24,10 +25,13 @@
                     </a>
 
                     <!-- SEARCH -->
-                    <form method="GET" action="{{ route('buyer.search') }}" class="d-none d-sm-block position-relative">
+                    <form method="GET" action="{{ route('buyer.search') }}"
+                        class="d-none d-sm-block position-relative">
 
                         <div class="flex-1 relative">
-                            <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
+                            <input name="q" value="{{ request('q') }}" type="search"
+                                placeholder="Cari produk, seller, kategori..."
+                                class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
                         </div>
                         <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-1">
                             <i class="bi bi-search text-muted"></i>
@@ -74,8 +78,9 @@
                     <!-- AVATAR -->
                     <a href="{{ route('buyer.profile') }}">
                         <img src="{{ auth()->user()->photo
-                                ? asset('storage/profile/' . auth()->user()->photo)
-                                : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                            ? asset('storage/profile/' . auth()->user()->photo)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                            class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
                     </a>
 
                     <!-- MOBILE MENU -->
@@ -106,11 +111,24 @@
                             {{-- Image Section --}}
                             <div class="col-12 col-md-6">
                                 <div class="bg-light rounded overflow-hidden">
+                                    @php
+                                        // Prefer product->image column, fallback to photos
+                                        if (!empty($product->image)) {
+                                            $mainImg = \Illuminate\Support\Str::startsWith($product->image, [
+                                                'http://',
+                                                'https://',
+                                            ])
+                                                ? $product->image
+                                                : asset('storage/' . $product->image);
+                                        } else {
+                                            $mainImg = $product->photos->first()?->path
+                                                ? asset('storage/' . $product->photos->first()->path)
+                                                : null;
+                                        }
+                                    @endphp
                                     @if ($mainImg)
-                                        <img id="main-product-image"
-                                            src="{{ $mainImg }}"
-                                            class="img-fluid w-100 rounded"
-                                            style="height:380px; object-fit:cover;"
+                                        <img id="main-product-image" src="{{ $mainImg }}"
+                                            class="img-fluid w-100 rounded" style="height:380px; object-fit:cover;"
                                             alt="{{ $product->name }}">
                                     @else
                                         <div class="d-flex align-items-center justify-content-center text-muted"
@@ -124,10 +142,9 @@
                                     <div class="row g-2 mt-3">
                                         @foreach ($product->photos as $photo)
                                             <div class="col-3">
-                                                <button type="button"
-                                                        class="border-0 p-0 bg-transparent w-100"
-                                                        onclick="document.getElementById('main-product-image').src='{{ asset('storage/'.$photo->path) }}'">
-                                                    <img src="{{ asset('storage/'.$photo->path) }}"
+                                                <button type="button" class="border-0 p-0 bg-transparent w-100"
+                                                    onclick="document.getElementById('main-product-image').src='{{ asset('storage/' . $photo->path) }}'">
+                                                    <img src="{{ asset('storage/' . $photo->path) }}"
                                                         class="img-fluid rounded"
                                                         style="height:70px; object-fit:cover;">
                                                 </button>
@@ -157,7 +174,8 @@
                                         @if (auth()->id() !== $product->user_id)
                                             <form action="{{ route('chat.start', $product->id) }}" method="POST">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                                                <button type="submit"
+                                                    class="btn btn-outline-primary d-flex align-items-center gap-2">
                                                     Chat Penjual
                                                 </button>
                                             </form>
@@ -199,8 +217,29 @@
                                         @endif
 
                                         @auth
+                                            @php
+                                                $canRate = auth()
+                                                    ->user()
+                                                    ->orders()
+                                                    ->where(function ($q) {
+                                                        $q->whereRaw("LOWER(`status`) = 'delivered'")->orWhereRaw(
+                                                            "LOWER(`status`) = 'selesai'",
+                                                        );
+                                                    })
+                                                    ->whereHas('orderItems', function ($q) use ($product) {
+                                                        $q->where('product_id', $product->id);
+                                                    })
+                                                    ->exists();
+
+                                                $existingReview = $product
+                                                    ->reviews()
+                                                    ->where('user_id', auth()->id())
+                                                    ->first();
+                                            @endphp
+
                                             @if ($canRate)
-                                                <form method="POST" action="{{ route('buyer.products.reviews.store', $product) }}">
+                                                <form method="POST"
+                                                    action="{{ route('buyer.products.reviews.store', $product) }}">
                                                     @csrf
                                                     <div class="mb-2">
                                                         <label class="form-label small">Nilai</label>
@@ -216,9 +255,7 @@
 
                                                     <div class="mb-2">
                                                         <label class="form-label small">Ulasan</label>
-                                                        <textarea name="comment"
-                                                                class="form-control form-control-sm"
-                                                                rows="3">{{ old('comment') ?? ($existingReview->comment ?? '') }}</textarea>
+                                                        <textarea name="comment" class="form-control form-control-sm" rows="3">{{ old('comment') ?? ($existingReview->comment ?? '') }}</textarea>
                                                     </div>
 
                                                     <button class="btn btn-primary btn-sm">Kirim Ulasan</button>
@@ -243,7 +280,8 @@
                                                     <span class="text-warning">★ {{ $review->rating }}</span>
                                                 </div>
                                                 <div class="text-muted small">{{ $review->comment }}</div>
-                                                <div class="text-muted small">{{ optional($review->created_at)->format('Y-m-d') }}</div>
+                                                <div class="text-muted small">
+                                                    {{ optional($review->created_at)->format('Y-m-d') }}</div>
                                             </div>
                                         @empty
                                             <div class="text-muted small">Belum ada ulasan.</div>

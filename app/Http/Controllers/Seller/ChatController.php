@@ -70,6 +70,6 @@ class ChatController extends Controller
         }
 
         // 5. Redirect User ke Halaman Chat
-        return redirect()->route('chat.index', ['conversation_id' => $conversation->id]);
+        return redirect()->route('chat.buyer', ['conversation_id' => $conversation->id]);
     }
 }

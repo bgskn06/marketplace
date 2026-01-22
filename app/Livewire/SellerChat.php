@@ -26,13 +26,27 @@ class SellerChat extends Component
             ->get();
     }
 
-    public function mount()
+    public function mount($conversation_id = null) // 1. Tambahkan parameter disini
     {
-        // Panggil function load tadi
         $this->loadConversations();
 
-        // Auto-select logic (hanya dijalankan saat halaman pertama dibuka)
-        if ($this->conversations->isNotEmpty()) {
+        // 2. Cek apakah ada ID yang dikirim dari Controller?
+        if ($conversation_id) {
+            // Cari conversation tersebut milik user yang login
+            $targetConversation = $this->conversations->firstWhere('id', $conversation_id);
+
+            if ($targetConversation) {
+                $this->selectedConversation = $targetConversation;
+
+                // Opsional: Langsung tandai read jika perlu
+                // $this->markAsRead($this->selectedConversation); 
+            } else {
+                // Fallback jika ID tidak ketemu (misal user iseng ganti URL)
+                $this->selectedConversation = $this->conversations->first();
+            }
+        }
+        // 3. Jika tidak ada ID (buka menu chat biasa), buka yang pertama
+        elseif ($this->conversations->isNotEmpty()) {
             $this->selectedConversation = $this->conversations->first();
         } else {
             $this->conversations = new Collection();

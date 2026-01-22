@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Dashboard</title>
+    <title>Marketify</title>
 
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
 
