@@ -17,7 +17,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
+        return view('buyer.profile', [
             'user' => $request->user(),
         ]);
     }
@@ -37,9 +37,7 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
-        // =========================
-        // HANDLE FOTO PROFIL
-        // =========================
+        
         if ($request->hasFile('photo')) {
 
             // hapus foto lama jika ada
@@ -55,7 +53,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('buyer.profile')->with('status', 'Profil berhasil diperbarui');
     }
 
     /**

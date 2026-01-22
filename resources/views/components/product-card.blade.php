@@ -2,9 +2,14 @@
 
 <article
     onclick="if (event.target.closest('button') || event.target.closest('a')) return; window.location='{{ route('products.show', $product->id) }}'"
-    class="bg-white rounded-xl shadow hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer group flex flex-col h-full"
+    class="card h-100 shadow-sm border-0 product-card cursor-pointer"
+    style="transition: all .2s ease;"
+    onmouseenter="this.classList.add('shadow')"
+    onmouseleave="this.classList.remove('shadow')"
 >
-    <div class="w-full h-44 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+    {{-- IMAGE --}}
+    <div class="bg-light d-flex align-items-center justify-content-center rounded-top overflow-hidden"
+         style="height: 180px;">
         @php
             $photoPath = $product->mainPhoto?->path
                 ?? $product->photos->first()?->path
@@ -15,67 +20,69 @@
             <img
                 src="{{ asset('storage/'.$photoPath) }}"
                 alt="{{ $product->name }}"
-                class="w-full h-full object-contain transition duration-300 group-hover:scale-105"
+                class="img-fluid"
+                style="max-height: 100%; object-fit: contain; transition: transform .3s;"
+                onmouseenter="this.style.transform='scale(1.05)'"
+                onmouseleave="this.style.transform='scale(1)'"
             >
-
         @else
-            <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                No Image
-            </div>
+            <div class="text-muted small">No Image</div>
         @endif
     </div>
 
     {{-- CONTENT --}}
-    <div class="p-4 flex flex-col flex-1">
+    <div class="card-body d-flex flex-column">
 
         {{-- TITLE --}}
-        <h2
-            class="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 min-h-[40px]"
+        <h6
+            class="fw-semibold text-dark mb-1"
+            style="min-height:40px; line-height:1.3;"
             title="{{ $product->name ?? $product->title ?? 'Produk' }}"
         >
             {{ $product->name ?? $product->title ?? 'Produk tidak ditemukan' }}
-        </h2>
+        </h6>
 
         {{-- CATEGORY + RATING --}}
-        <div class="flex items-center gap-2 mt-2 text-xs min-h-[20px]">
-            <span class="text-gray-500 truncate">
+        <div class="d-flex align-items-center gap-2 mb-2 small text-muted">
+            <span class="text-truncate">
                 {{ is_object($product->category) ? $product->category->name : ($product->category ?? ($category_id?->name ?? '-')) }}
             </span>
-            <span class="inline-flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded">
+
+            <span class="badge bg-warning-subtle text-warning fw-semibold">
                 ⭐ {{ number_format($product->rating ?? 0,1) }}
             </span>
         </div>
 
         {{-- DESCRIPTION --}}
-        <p class="text-xs text-gray-600 mt-3 line-clamp-2 min-h-[32px]">
+        <p class="text-muted small mb-2" style="min-height:32px;">
             {{ \Illuminate\Support\Str::limit($product->description, 100) }}
         </p>
 
         {{-- PRICE --}}
-        <div class="mt-4 text-indigo-600 font-bold text-lg">
+        <div class="fw-bold text-primary fs-5 mb-1">
             Rp{{ number_format($product->price ?? $product->harga ?? 0,0,',','.') }}
         </div>
 
         {{-- STOCK --}}
-        <div class="text-xs text-gray-400 mb-3">
+        <div class="text-muted small mb-3">
             Stok: {{ $product->stock }}
         </div>
 
         {{-- ACTIONS --}}
-        <div class="mt-auto flex items-center justify-between gap-2">
+        <div class="mt-auto d-flex gap-2">
             <a
                 href="{{ route('products.show', $product->id) }}"
-                class="btn btn-outline-primary btn-sm text-nowrap w-100"
+                class="btn btn-outline-primary btn-sm w-100 text-nowrap"
             >
-                Detai
+                Detail
             </a>
 
-            <form method="POST" action="{{ route('buyer.cart.add') }}" class="flex-1">
+            <form method="POST" action="{{ route('buyer.cart.add') }}" class="w-100">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}" />
                 <button
                     type="submit"
-                    class="btn btn-primary btn-sm w-full"
+                    class="btn btn-primary btn-sm w-100"
                     aria-label="Tambah ke keranjang"
                 >
                     Tambah

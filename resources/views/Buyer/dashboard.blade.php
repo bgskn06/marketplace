@@ -65,39 +65,30 @@
                     <nav class="d-none d-md-block">
                         <ul class="nav align-items-center gap-2">
                             <li class="nav-item">
-                                <a href="{{ route('buyer.dashboard') }}"
-   class="nav-link rounded px-3
-   {{ Request::is('buyer/dashboard') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
-   Home
-</a>
-
+                                <x-nav-link href="{{ route('buyer.dashboard') }}" :active="request()->routeIs('buyer.dashboard')">
+                                    Home
+                                </x-nav-link>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ $buyerOrdersUrl }}"
-   class="nav-link rounded px-3
-   {{ Request::is('buyer/orders*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
-   Orders
-</a>
 
-                            </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.messages') }}"
-                                class="nav-link rounded px-3
-                                {{ Request::is('buyer/messages*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
-                                Messages
-                                </a>
+                                <x-nav-link href="{{ route('buyer.orders') }}" :active="request()->routeIs('buyer.orders')">
+                                    Orders
+                                </x-nav-link>
+                            </li>
 
-                            </li>
                             <li class="nav-item">
-                                <a href="{{ route('buyer.cart') }}" class="nav-link rounded px-3
-   {{ Request::is('buyer/cart*') ? 'bg-success bg-opacity-10 text-success fw-semibold' : 'text-muted' }}">
+                                <x-nav-link href="{{ route('buyer.messages') }}" :active="request()->routeIs('buyer.messages')">
+                                    Messages
+                                </x-nav-link>
+                            </li>
+
+                            <li class="nav-item">
+                                <x-nav-link href="{{ route('buyer.cart') }}" :active="request()->routeIs('buyer.cart')">
                                     Cart
-                                    <span class="badge bg-danger ms-1" x-text="cartCount"></span>
-                                </a>
-
-
+                                </x-nav-link>
                             </li>
                         </ul>
+
                     </nav>
 
                     <!-- DIVIDER -->
@@ -105,7 +96,9 @@
 
                     <!-- AVATAR -->
                     <a href="{{ route('buyer.profile') }}">
-                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                        <img src="{{ auth()->user()->photo
+                                ? asset('storage/profile/' . auth()->user()->photo)
+                                : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
                     </a>
 
                     <!-- MOBILE MENU -->
@@ -118,7 +111,8 @@
         </div>
     </header>
 
-    <div class="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-pink-50" x-data="{ filtersOpen:false, cartCount: {{ $summary['cart_count'] ?? 0 }} }">
+    <div class="min-vh-100 bg-light" x-data="{ filtersOpen:false, cartCount: {{ $summary['cart_count'] ?? 0 }} }">
+
         <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
 
             {{-- Banner --}}
@@ -187,9 +181,11 @@
 
             </section>
 
-            <div class="grid grid-cols-12 gap-6" x-data="{filtersOpen:false}">
+            <div class="row g-4" x-data="{filtersOpen:false}">
+
                 <!-- Sidebar: Filters -->
-                <aside class="col-span-12 lg:col-span-3">
+                <aside class="col-12 col-lg-3">
+
                     <!-- Mobile slide-over -->
                     <div x-show="filtersOpen" x-cloak class="sm:hidden fixed inset-0 z-50 p-4 bg-white overflow-auto">
                         <div class="flex items-center justify-between mb-4">
@@ -226,10 +222,10 @@
                                 </select>
                             </div>
 
-                            <button @click="filtersOpen = false" type="submit" class="mt-3 w-full bg-indigo-600 text-white rounded-md py-2">Terapkan</button>
+                            <button @click="filtersOpen = false" type="submit" class="mt-3 w-full btn btn-primary w-100">Terapkan</button>
                         </form>
                     </div>
-                    <div class="hidden sm:block bg-white rounded-lg shadow p-4 lg:sticky lg:top-6">
+                    <div class="hidden sm:block bg-white rounded shadow p-4 lg:sticky lg:top-6">
                         <h3 class="font-semibold text-gray-700 mb-3">Filter</h3>
                         <form method="GET" action="{{ route('buyer.dashboard') }}" class="space-y-3 text-sm">
                             <div>
@@ -260,18 +256,19 @@
                                 </select>
                             </div>
 
-                            <button type="submit" class="mt-3 w-full bg-indigo-600 text-white rounded-md py-2">Terapkan</button>
+                            <button type="submit" class="mt-3 w-full btn btn-primary w-100">Terapkan</button>
                         </form>
                     </div>
 
-                    <div class="mt-4 bg-white rounded-lg shadow p-4">
+                    <div class="mt-4 bg-white rounded shadow p-4">
                         <h3 class="font-semibold text-gray-700 mb-3">Ringkasan Keranjang</h3>
                         <div class="text-sm text-gray-600">{{ $cartSummary['count'] ?? 0 }} item • Total: <strong class="text-gray-900">Rp{{ number_format($cartSummary['total'] ?? 0,0,',','.') }}</strong></div>
                         <a href="{{ route('buyer.cart') }}" class="mt-3 block text-center bg-green-500 text-white rounded-md py-2">Lihat Keranjang</a>
                     </div>
                 </aside>
 
-                <section class="col-span-12 lg:col-span-6">
+                <section class="col-12 col-lg-6">
+
                     <form method="GET" action="{{ route('buyer.search') }}" class="mb-4 flex items-center gap-4">
                         <div class="flex-1 relative">
                             <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="w-full border-gray-200 rounded-md p-3" />
@@ -282,9 +279,10 @@
                         </div>
                     </form>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="row g-4">
                         @forelse ($products as $product)
-                        <div class="p-1">
+                        <div class="col-12 col-sm-6 col-lg-4">
+
                             <x-product-card :product="$product" />
                         </div>
                         @empty
@@ -296,7 +294,8 @@
                     </div>
                 </section>
 
-                <aside class="col-span-12 lg:col-span-3">
+                <aside class="col-12 col-lg-3">
+
                     <div class="bg-white/95 rounded-lg shadow p-4 border-l-4 border-indigo-300">
                         <h3 class="font-semibold text-indigo-700 mb-3">Pesanan Terbaru</h3>
                         <ul class="space-y-3 text-sm text-gray-600">

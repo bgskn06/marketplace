@@ -11,16 +11,27 @@
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
                             <path d="M9 16v-8l3 5l3 -5v8"></path>
                             <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
-              c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
-              a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
-              a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
-              c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
-              a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
+                c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
+                a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
+                a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
+                c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
+                a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
                         </svg>
                         <span class="fs-5 fw-medium text-dark">
                             Marketplace <span class="fw-bold">UDB</span>
                         </span>
                     </a>
+
+                    <!-- SEARCH -->
+                    <form method="GET" action="{{ route('buyer.search') }}" class="d-none d-sm-block position-relative">
+
+                        <div class="flex-1 relative">
+                            <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
+                        </div>
+                        <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-1">
+                            <i class="bi bi-search text-muted"></i>
+                        </button>
+                    </form>
                 </div>
 
                 <!-- RIGHT -->
@@ -30,19 +41,30 @@
                     <nav class="d-none d-md-block">
                         <ul class="nav align-items-center gap-2">
                             <li class="nav-item">
-                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
+                                <x-nav-link href="{{ route('buyer.dashboard') }}" :active="request()->routeIs('buyer.dashboard')">
+                                    Home
+                                </x-nav-link>
+                            </li>
 
-                            </li>
                             <li class="nav-item">
-                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                                <x-nav-link href="{{ route('buyer.orders') }}" :active="request()->routeIs('buyer.orders')">
+                                    Orders
+                                </x-nav-link>
                             </li>
+
                             <li class="nav-item">
-                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                                <x-nav-link href="{{ route('buyer.messages') }}" :active="request()->routeIs('buyer.messages')">
+                                    Messages
+                                </x-nav-link>
                             </li>
+
                             <li class="nav-item">
-                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                                <x-nav-link href="{{ route('buyer.cart') }}" :active="request()->routeIs('buyer.cart')">
+                                    Cart
+                                </x-nav-link>
                             </li>
                         </ul>
+
                     </nav>
 
                     <!-- DIVIDER -->
@@ -50,7 +72,14 @@
 
                     <!-- AVATAR -->
                     <a href="{{ route('buyer.profile') }}">
-                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                        <img
+                            src="{{ auth()->user()->photo
+                                ? asset('storage/profile/' . auth()->user()->photo)
+                                : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                            class="rounded-circle object-fit-cover"
+                            width="40"
+                            height="40"
+                            alt="Profile">
                     </a>
 
                     <!-- MOBILE MENU -->
@@ -64,112 +93,135 @@
     </header>
 
 
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="container my-4">
+
         @if(auth()->check())
-        <div class="bg-white/95 rounded-lg shadow p-6 border-l-4 border-indigo-300">
-            <div class="flex items-start justify-between">
-                <div>
-                    <h2 class="font-semibold text-indigo-700 text-lg">Informasi Akun</h2>
-                    <p class="text-sm text-gray-600 mt-1">Kelola data akun Anda di sini.</p>
-                </div>
-                <div class="flex items-center gap-2">
+        <div class="card shadow border-start border-4 border-primary-subtle">
+            <div class="card-body">
+
+                {{-- HEADER --}}
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h5 class="fw-semibold text-primary mb-1">Informasi Akun</h5>
+                        <p class="text-muted mb-0">Kelola data akun Anda di sini.</p>
+                    </div>
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="px-3 py-2 bg-red-600 text-white rounded-md">Logout</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            Logout
+                        </button>
                     </form>
                 </div>
-            </div>
 
-            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {{-- FORM --}}
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="row g-3">
 
-                @csrf
-                @method('PATCH')
+                    @csrf
+                    @method('PATCH')
 
-                <div class="sm:col-span-2 d-flex align-items-center gap-4">
-                    <img
-                        src="{{ auth()->user()->photo
-                                ? asset('storage/profile/'.auth()->user()->photo)
-                                : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name) }}"
-                        class="rounded-circle object-fit-cover"
-                        width="80"
-                        height="80"
-                        alt="Profile Photo"
-                    >
+                    {{-- PHOTO --}}
+                    <div class="col-12 d-flex align-items-center gap-3">
+                        <img src="{{ auth()->user()->photo
+                            ? asset('storage/profile/'.auth()->user()->photo)
+                            : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name) }}" class="rounded-circle object-fit-cover" width="80" height="80" alt="Profile Photo">
 
-                    <div>
-                        <label class="form-label text-sm text-gray-600">Foto Profil</label>
-                        <input
-                            type="file"
-                            name="photo"
-                            accept="image/*"
-                            class="form-control form-control-sm"
-                        >
-                        <small class="text-muted">PNG / JPG maks 2MB</small>
+                        <div>
+                            <label class="form-label mb-1">Foto Profil</label>
+                            <input type="file" name="photo" accept="image/*" class="form-control form-control-sm">
+                            <div class="form-text">PNG / JPG maks 2MB</div>
+                        </div>
                     </div>
-                </div>
 
+                    {{-- NAME --}}
+                    <div class="col-md-6">
+                        <label class="form-label">Nama</label>
+                        <input name="name" value="{{ old('name', optional($user)->name) }}" class="form-control" required>
+                        <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                    </div>
 
-                <div>
-                    <label class="block text-sm text-gray-600">Nama</label>
-                    <input name="name" value="{{ old('name', optional($user)->name) }}" class="w-full mt-1 border-gray-200 rounded-md p-2" required>
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
+                    {{-- EMAIL --}}
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input name="email" value="{{ old('email', optional($user)->email) }}" class="form-control" required>
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                    </div>
 
-                <div>
-                    <label class="block text-sm text-gray-600">Email</label>
-                    <input name="email" value="{{ old('email', optional($user)->email) }}" class="w-full mt-1 border-gray-200 rounded-md p-2" required>
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
+                    {{-- ADDRESS --}}
+                    <div class="col-12">
+                        <label class="form-label">Alamat</label>
+                        <input name="address" value="{{ old('address', optional($user)->address ?? '') }}" class="form-control">
+                    </div>
 
-                <div class="sm:col-span-2">
-                    <label class="block text-sm text-gray-600">Alamat</label>
-                    <input name="address" value="{{ old('address', optional($user)->address ?? '') }}" class="w-full mt-1 border-gray-200 rounded-md p-2">
-                </div>
+                    {{-- ACTIONS --}}
+                    <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            Simpan
+                        </button>
 
-                <div class="sm:col-span-2 text-right">
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Simpan</button>
-                </div>
+                        <a href="{{ route('seller.register') }}" class="btn btn-outline-primary">
+                            Daftar Seller
+                        </a>
+                    </div>
 
-                <div class="sm:col-span-2 text-right">
-                    <a href="{{ route('seller.register') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md inline-block">Daftar Seller</a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
+
         @else
-        <div class="bg-white/95 rounded-lg shadow p-6 border-l-4 border-indigo-300 max-w-md mx-auto">
-            <h2 class="font-semibold text-indigo-700 text-lg">Masuk ke Akun Anda</h2>
-            <p class="text-sm text-gray-600 mt-1">Masuk untuk melihat profil dan pesanan Anda.</p>
+        {{-- LOGIN BOX --}}
+        <div class="card shadow border-start border-4 border-primary-subtle mx-auto" style="max-width:420px">
+            <div class="card-body">
 
-            <form method="POST" action="{{ route('login') }}" class="mt-4 space-y-4">
-                @csrf
+                <h5 class="fw-semibold text-primary mb-1">Masuk ke Akun Anda</h5>
+                <p class="text-muted mb-3">Masuk untuk melihat profil dan pesanan Anda.</p>
 
-                <div>
-                    <label class="block text-sm text-gray-600">Email</label>
-                    <input name="email" value="{{ old('email') }}" type="email" required class="w-full mt-1 border-gray-200 rounded-md p-2">
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
 
-                <div>
-                    <label class="block text-sm text-gray-600">Password</label>
-                    <input name="password" type="password" required class="w-full mt-1 border-gray-200 rounded-md p-2">
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input name="email" type="email" value="{{ old('email') }}" class="form-control" required>
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                    </div>
 
-                <div class="flex items-center justify-between">
-                    <label class="inline-flex items-center text-sm text-gray-600">
-                        <input type="checkbox" name="remember" class="mr-2"> Ingat saya
-                    </label>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control" required>
+                        <x-input-error :messages="$errors->get('password')" class="mt-1" />
+                    </div>
 
-                    <a href="{{ route('password.request') }}" class="text-sm text-indigo-600 hover:underline">Lupa password?</a>
-                </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                            <label class="form-check-label" for="remember">
+                                Ingat saya
+                            </label>
+                        </div>
 
-                <div class="text-right">
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Masuk</button>
-                </div>
-            </form>
+                        <a href="{{ route('password.request') }}" class="text-decoration-none">
+                            Lupa password?
+                        </a>
+                    </div>
 
-            <p class="mt-4 text-sm text-gray-600">Belum punya akun? <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Daftar sekarang</a></p>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            Masuk
+                        </button>
+                    </div>
+                </form>
+
+                <p class="text-muted mt-3 mb-0">
+                    Belum punya akun?
+                    <a href="{{ route('register') }}" class="text-primary fw-medium text-decoration-none">
+                        Daftar sekarang
+                    </a>
+                </p>
+            </div>
         </div>
         @endif
+
     </main>
+
+
 </x-app-layout>

@@ -11,16 +11,27 @@
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
                             <path d="M9 16v-8l3 5l3 -5v8"></path>
                             <path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284
-              c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
-              a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
-              a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
-              c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
-              a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
+                c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27
+                a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27
+                a2.225 2.225 0 0 1 -1.158 -1.948v-7.285
+                c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98
+                a2.33 2.33 0 0 1 2.25 0l6.75 3.98"></path>
                         </svg>
                         <span class="fs-5 fw-medium text-dark">
                             Marketplace <span class="fw-bold">UDB</span>
                         </span>
                     </a>
+
+                    <!-- SEARCH -->
+                    <form method="GET" action="{{ route('buyer.search') }}" class="d-none d-sm-block position-relative">
+
+                        <div class="flex-1 relative">
+                            <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari produk, seller, kategori..." class="form-control rounded-pill ps-4 pe-5" style="width:260px" />
+                        </div>
+                        <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-1">
+                            <i class="bi bi-search text-muted"></i>
+                        </button>
+                    </form>
                 </div>
 
                 <!-- RIGHT -->
@@ -30,19 +41,30 @@
                     <nav class="d-none d-md-block">
                         <ul class="nav align-items-center gap-2">
                             <li class="nav-item">
-                                <a href="{{ route('buyer.dashboard') }}" class="nav-link active bg-success bg-opacity-10 text-success rounded px-3">Home</a>
+                                <x-nav-link href="{{ route('buyer.dashboard') }}" :active="request()->routeIs('buyer.dashboard')">
+                                    Home
+                                </x-nav-link>
+                            </li>
 
-                            </li>
                             <li class="nav-item">
-                                <a href="{{ $buyerOrdersUrl }}" class="nav-link text-muted">Orders</a>
+                                <x-nav-link href="{{ route('buyer.orders') }}" :active="request()->routeIs('buyer.orders')">
+                                    Orders
+                                </x-nav-link>
                             </li>
+
                             <li class="nav-item">
-                                <a href="{{ route('buyer.messages') }}" class="nav-link text-muted">Messages</a>
+                                <x-nav-link href="{{ route('buyer.messages') }}" :active="request()->routeIs('buyer.messages')">
+                                    Messages
+                                </x-nav-link>
                             </li>
+
                             <li class="nav-item">
-                                <a href="{{ route('buyer.cart') }}" class="nav-link text-muted">Cart <span class="ml-1 inline-block bg-indigo-50 text-xs px-2 rounded-full text-indigo-700" x-text="cartCount"></span></a>
+                                <x-nav-link href="{{ route('buyer.cart') }}" :active="request()->routeIs('buyer.cart')">
+                                    Cart
+                                </x-nav-link>
                             </li>
                         </ul>
+
                     </nav>
 
                     <!-- DIVIDER -->
@@ -50,7 +72,14 @@
 
                     <!-- AVATAR -->
                     <a href="{{ route('buyer.profile') }}">
-                        <img src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40" class="rounded-circle object-fit-cover" width="40" height="40" alt="Profile">
+                        <img
+                            src="{{ auth()->user()->photo
+                                ? asset('storage/profile/' . auth()->user()->photo)
+                                : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                            class="rounded-circle object-fit-cover"
+                            width="40"
+                            height="40"
+                            alt="Profile">
                     </a>
 
                     <!-- MOBILE MENU -->
@@ -64,13 +93,17 @@
     </header>
 
 
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="bg-white/95 rounded-lg shadow p-4 border-l-4 border-pink-300">
-            <h2 class="font-semibold text-pink-600 text-lg">Kotak Masuk</h2>
 
-            <div class="mt-2">
+    <main class="container my-4">
+    <div class="card shadow border-start border-4 border-danger-subtle">
+        <div class="card-body">
+            <h5 class="fw-semibold text-danger mb-3">
+                Kotak Masuk
+            </h5>
+            <div>
                 @livewire('seller-chat')
             </div>
         </div>
-    </main>
+    </div>
+</main>
 </x-app-layout>
