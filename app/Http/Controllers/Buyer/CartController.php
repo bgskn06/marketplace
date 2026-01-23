@@ -32,7 +32,7 @@ class CartController extends Controller
             $item->increment('quantity', 1);
         }
         $count = $user->cartItems()->count();
-        if ($request->expectsJson()) {
+        if ($request->wantsJson()) {
             return response()->json(['success' => true, 'cart_count' => $count]);
         }
 
@@ -43,7 +43,7 @@ class CartController extends Controller
     {
         $user = $request->user();
         if ($item->user_id !== $user->id) {
-            if ($request->expectsJson()) {
+            if ($request->wantsJson()) {
                 return response()->json(['success' => false], 403);
             }
             return redirect()->back()->with('success', 'Gagal menghapus item');
@@ -57,7 +57,7 @@ class CartController extends Controller
             return ($p->price ?? $p->harga ?? 0) * $i->quantity;
         });
 
-        if ($request->expectsJson()) {
+        if ($request->wantsJson()) {
             return response()->json(['success' => true, 'cart_count' => $user->cartItems()->count(), 'cart_subtotal' => $subtotal]);
         }
 
@@ -130,7 +130,7 @@ class CartController extends Controller
         $items = $user->cartItems()->with('product')->get();
 
         if ($items->isEmpty()) {
-            if ($request->expectsJson()) return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 422);
+            if ($request->wantsJson()) return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 422);
             return redirect()->route('buyer.cart')->with('success', 'Keranjang kosong');
         }
 
@@ -138,7 +138,7 @@ class CartController extends Controller
         foreach ($items as $item) {
             $p = $item->product;
             if ($item->quantity > ($p->stock ?? 0)) {
-                if ($request->expectsJson()) return response()->json(['success' => false, 'message' => "Stok tidak mencukupi untuk: {$p->name}"], 422);
+                if ($request->wantsJson()) return response()->json(['success' => false, 'message' => "Stok tidak mencukupi untuk: {$p->name}"], 422);
                 return redirect()->back()->with('success', "Stok tidak mencukupi untuk: {$p->name}");
             }
         }
@@ -157,8 +157,9 @@ class CartController extends Controller
             'standard' => 10000,
             'express' => 25000,
         ];
-        $shippingKey = $request->input('shipping');
-        $shippingPrice = $shippingRates[$shippingKey] ?? 0;
+        $shippingKey = $request->input('shipping', 'standard');
+        $shippingPrice = $shippingRates[$shippingKey] ?? 10000;
+
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
@@ -263,7 +264,7 @@ class CartController extends Controller
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
-            if ($request->expectsJson()) return response()->json(['success' => false, 'message' => 'Checkout gagal'], 500);
+            if ($request->wantsJson()) return response()->json(['success' => false, 'message' => 'Checkout gagal'], 500);
             return redirect()->back()->with('success', 'Checkout gagal');
         }
 
@@ -274,7 +275,7 @@ class CartController extends Controller
             $redirectUrl = route('buyer.orders.payment', $order);
         }
 
-        if ($request->expectsJson()) {
+        if ($request->wantsJson()) {
             return response()->json(['success' => true, 'order_id' => $order->id, 'redirect' => $redirectUrl]);
         }
 
