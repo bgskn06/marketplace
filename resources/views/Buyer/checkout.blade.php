@@ -253,52 +253,52 @@
 
             checkoutBtn.addEventListener('click', function() {
 
-                // BASIC VALIDATION
-                if (!form.recipient_name.value || !form.address.value) {
-                    alert('Nama penerima dan alamat wajib diisi');
-                    return;
-                }
+            const recipient = form.querySelector('[name="recipient_name"]');
+            const address = form.querySelector('[name="address"]');
 
-                checkoutBtn.disabled = true;
-                const originalText = checkoutBtn.textContent;
-                checkoutBtn.textContent = 'Processing...';
+            if (!recipient.value.trim() || !address.value.trim()) {
+            alert('Nama penerima dan alamat wajib diisi');
+            return;
+            }
 
-                const formData = new FormData(form);
-                formData.append('shipping_price', getShippingPrice());
+            checkoutBtn.disabled = true;
+            const originalText = checkoutBtn.textContent;
+            checkoutBtn.textContent = 'Processing...';
 
-                fetch("{{ route('buyer.cart.checkout') }}", {
-                        method: 'POST'
-                        , headers: {
-                            'X-CSRF-TOKEN': csrf
-                            , 'Accept': 'application/json'
-                        }
-                        , body: formData
-                    })
-                    .then(async response => {
-                        const data = await response.json();
+            const formData = new FormData(form);
+            formData.append('shipping_price', getShippingPrice());
 
-                        if (!response.ok) {
-                            throw data;
-                        }
-
-                        return data;
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = data.redirect ? ? "{{ $buyerOrdersUrl }}";
-                        } else {
-                            alert(data.message || 'Checkout gagal');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert(err.message || 'Terjadi kesalahan saat checkout');
-                    })
-                    .finally(() => {
-                        checkoutBtn.disabled = false;
-                        checkoutBtn.textContent = originalText;
-                    });
+            fetch("{{ route('buyer.cart.checkout') }}", {
+            method: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
+            },
+            body: formData
+            })
+            .then(async response => {
+            const data = await response.json();
+            if (!response.ok) throw data;
+            return data;
+            })
+            .then(data => {
+            if (data.success) {
+            window.location.href = data.redirect ?? "{{ $buyerOrdersUrl }}";
+            } else {
+            alert(data.message || 'Checkout gagal');
+            }
+            })
+            .catch(err => {
+            console.error(err);
+            alert(err.message || 'Terjadi kesalahan saat checkout');
+            })
+            .finally(() => {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = originalText;
             });
+            });
+
+
 
             // Init
             recalcSummary();
